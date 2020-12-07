@@ -15,8 +15,10 @@ public class GestureRecognition_TwoHanded : MonoBehaviour
     public const int Side_Left = 0;
     public const int Side_Right = 1;
 
-    public XRController leftController;
-    public XRController rightController;
+    public Transform leftController;
+    private InputDevice leftController_device;
+    public Transform rightController;
+    private InputDevice rightController_device;
 
     private Camera mainCamera;
 
@@ -104,6 +106,9 @@ public class GestureRecognition_TwoHanded : MonoBehaviour
 
         me = GCHandle.Alloc(this);
 
+        leftController_device = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+        rightController_device  = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+
         // Global setting:
         // Ignore head tilt and roll rotation to approximate torso position.
         gc.ignoreHeadRotationUpDown = true;
@@ -179,11 +184,12 @@ public class GestureRecognition_TwoHanded : MonoBehaviour
         {
             Application.Quit();
         }
-        float trigger_left = Input.GetAxis("LeftControllerTrigger");
-        float trigger_right = Input.GetAxis("RightControllerTrigger");
 
-        bool button_a_left = Input.GetButton("LeftControllerButtonA");
-        bool button_a_right = Input.GetButton("RightControllerButtonA");
+        leftController_device.TryGetFeatureValue(CommonUsages.trigger, out float trigger_left);
+        rightController_device.TryGetFeatureValue(CommonUsages.trigger, out float trigger_right);
+
+        leftController_device.TryGetFeatureValue(CommonUsages.primaryButton, out bool button_a_left);
+        rightController_device.TryGetFeatureValue(CommonUsages.primaryButton, out bool button_a_right);
         if (button_a_pressed)
         {
             if (!button_a_left && !button_a_right)
@@ -273,7 +279,7 @@ public class GestureRecognition_TwoHanded : MonoBehaviour
             } else
             {
                 // User still dragging or still moving after trigger pressed
-                Transform left_hand = leftController.transform;
+                Transform left_hand = leftController;
                 gc.contdStrokeQ(Side_Left, left_hand.position, left_hand.rotation);
                 // Show the stroke by instatiating new objects
                 addToStrokeTrail(left_hand.position);

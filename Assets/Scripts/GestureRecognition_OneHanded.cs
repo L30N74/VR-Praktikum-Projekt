@@ -11,6 +11,13 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class GestureRecognition_OneHanded : MonoBehaviour {
 
+    public Transform leftController;
+    private InputDevice leftController_device;
+    public Transform rightController;
+    private InputDevice rightController_device;
+    // The game object associated with the currently active controller (if any):
+    private GameObject active_controller = null;
+
     // The file from which to load gestures on startup.
     // For example: "Assets/GestureRecognition/sample_gestures.dat"
     [SerializeField] private string LoadGesturesFile;
@@ -25,9 +32,6 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
 
     // The text field to display instructions.
     private TextMeshProUGUI HUDText;
-
-    // The game object associated with the currently active controller (if any):
-    private GameObject active_controller = null;
 
     // The game object associated with the currently active controller (if any):
     private bool button_a_pressed = false;
@@ -69,6 +73,9 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
 
         me = GCHandle.Alloc(this);
 
+        leftController_device = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+        rightController_device  = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+        
         // Load the set of gestures.
         if (LoadGesturesFile == null)
         {
@@ -175,11 +182,13 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
         {
             Application.Quit();
         }
-        float trigger_left = Input.GetAxis("LeftControllerTrigger");
-        float trigger_right = Input.GetAxis("RightControllerTrigger");
 
-        bool button_a_left = Input.GetButton("LeftControllerButtonA");
-        bool button_a_right = Input.GetButton("RightControllerButtonA");
+        leftController_device.TryGetFeatureValue(CommonUsages.trigger, out float trigger_left);
+        rightController_device.TryGetFeatureValue(CommonUsages.trigger, out float trigger_right);
+
+        leftController_device.TryGetFeatureValue(CommonUsages.primaryButton, out bool button_a_left);
+        rightController_device.TryGetFeatureValue(CommonUsages.primaryButton, out bool button_a_right);
+
         if (button_a_pressed)
         {
             if (!button_a_left && !button_a_right)
@@ -226,10 +235,10 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
         // If the user is not yet dragging (pressing the trigger) on either controller, he hasn't started a gesture yet.
         if (active_controller == null) {
             // If the user presses either controller's trigger, we start a new gesture.
-            if (trigger_right > 0.9) {
+            if (trigger_right > 0.9 && !(trigger_left > 0.5)) {
                 // Right controller trigger pressed.
                 active_controller = GameObject.Find("RightHand Controller");
-            } else if (trigger_left > 0.9) {
+            } else if (trigger_left > 0.9 && !(trigger_right > 0.5)) {
                 // Left controller trigger pressed.
                 active_controller = GameObject.Find("LeftHand Controller");
             } else {
@@ -246,7 +255,7 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
 
         // If we arrive here, the user is currently dragging with one of the controllers.
         // Check if the user is still dragging or if he let go of the trigger button.
-        if (trigger_left > 0.85 || trigger_right > 0.85) {
+        if (trigger_left > 0.85 || trigger_right > 0.85 && !(trigger_left > 0.5 && trigger_right > 0.5)) {
             // The user is still dragging with the controller: continue the gesture.
             Vector3 p = active_controller.transform.position;
             Quaternion q = active_controller.transform.rotation;
