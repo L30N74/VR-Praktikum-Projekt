@@ -338,6 +338,7 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
             HUDText.text = "Identified a CIRCLE/LOOP gesture!";
             GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             cylinder.transform.position = pos;
+            cylinder.AddComponent<XRGrabInteractable>();
             cylinder.transform.rotation = Quaternion.FromToRotation(new Vector3(0, 1, 0), dir2);
             cylinder.transform.localScale = new Vector3((float)scale * 2, (float)scale, (float)scale * 2);
             created_objects.Add(cylinder);
