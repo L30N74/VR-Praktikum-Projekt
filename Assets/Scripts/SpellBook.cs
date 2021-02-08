@@ -23,8 +23,8 @@ public class SpellBook : MonoBehaviour
     }
 
     void displayStoneSpell() {
-        title = "Steinfall";
-        description = "Du beschwörst einen großen Stein über deinem Gegner. Der Aufprall ist so mächtig, dass der Gegner für eine kurze Zeit nicht angreifen kann.";
+        title.text = "Steinfall";
+        description.text = "Du beschwörst einen großen Stein über deinem Gegner. Der Aufprall ist so mächtig, dass der Gegner für eine kurze Zeit nicht angreifen kann.";
         // element = "";
     }
 }
