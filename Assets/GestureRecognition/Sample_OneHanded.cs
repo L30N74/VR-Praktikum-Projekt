@@ -26,16 +26,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using AOT;
 using UnityEngine.UI;
 using UnityEngine.XR;
-using UnityEngine.Networking;
+using TMPro;
 
 public class Sample_OneHanded : MonoBehaviour
 {
@@ -52,10 +50,10 @@ public class Sample_OneHanded : MonoBehaviour
     private GestureRecognition gr = new GestureRecognition();
 
     // The text field to display instructions.
-    private Text HUDText;
+    private TextMeshProUGUI HUDText;
 
     // The game object associated with the currently active controller (if any):
-    private GameObject           active_controller = null;
+    private GameObject active_controller = null;
 
     // The game object associated with the currently active controller (if any):
     private bool button_a_pressed = false;
@@ -86,7 +84,7 @@ public class Sample_OneHanded : MonoBehaviour
     void Start ()
     {
         // Set the welcome message.
-        HUDText = GameObject.Find("HUDText").GetComponent<Text>();
+        HUDText = GameObject.Find("HUDText").GetComponent<TextMeshProUGUI>();
         HUDText.text = "Welcome to MARUI Gesture Plug-in!\n"
                       + "Press the trigger to draw a gesture. Available gestures:\n"
                       + "1 - a circle/ring (creates a cylinder)\n"
@@ -137,28 +135,28 @@ public class Sample_OneHanded : MonoBehaviour
         }
 
         // Reset the skybox tint color
-        RenderSettings.skybox.SetColor("_Tint", new Color(0.5f, 0.5f, 0.5f, 1.0f));
+        //RenderSettings.skybox.SetColor("_Tint", new Color(0.5f, 0.5f, 0.5f, 1.0f));
 
         // Hide unused models in the scene
-        GameObject controller_oculus_left = GameObject.Find("controller_oculus_left");
+        /*GameObject controller_oculus_left = GameObject.Find("controller_oculus_left");
         GameObject controller_oculus_right = GameObject.Find("controller_oculus_right");
         GameObject controller_vive_left = GameObject.Find("controller_vive_left");
         GameObject controller_vive_right = GameObject.Find("controller_vive_right");
         GameObject controller_microsoft_left = GameObject.Find("controller_microsoft_left");
         GameObject controller_microsoft_right = GameObject.Find("controller_microsoft_right");
         GameObject controller_dummy_left = GameObject.Find("controller_dummy_left");
-        GameObject controller_dummy_right = GameObject.Find("controller_dummy_right");
+        GameObject controller_dummy_right = GameObject.Find("controller_dummy_right");*/
 
-        controller_oculus_left.SetActive(false);
+        /*controller_oculus_left.SetActive(false);
         controller_oculus_right.SetActive(false);
         controller_vive_left.SetActive(false);
         controller_vive_right.SetActive(false);
         controller_microsoft_left.SetActive(false);
         controller_microsoft_right.SetActive(false);
         controller_dummy_left.SetActive(false);
-        controller_dummy_right.SetActive(false);
+        controller_dummy_right.SetActive(false);*/
 
-        var input_devices = new List<UnityEngine.XR.InputDevice>();
+        /*var input_devices = new List<UnityEngine.XR.InputDevice>();
         UnityEngine.XR.InputDevices.GetDevices(input_devices);
         String input_device = "";
         foreach (var device in input_devices)
@@ -168,9 +166,9 @@ public class Sample_OneHanded : MonoBehaviour
                 input_device = device.name;
                 break;
             }
-        }
+        }*/
 
-        if (input_device.Length >= 6 && input_device.Substring(0, 6) == "Oculus")
+        /*if (input_device.Length >= 6 && input_device.Substring(0, 6) == "Oculus")
         {
             controller_oculus_left.SetActive(true);
             controller_oculus_right.SetActive(true);
@@ -184,27 +182,27 @@ public class Sample_OneHanded : MonoBehaviour
             controller_microsoft_left.SetActive(true);
             controller_microsoft_right.SetActive(true);
         }
-        else // 
+        else
         {
             controller_dummy_left.SetActive(true);
             controller_dummy_right.SetActive(true);
-        }
+        }*/
         
         GameObject star = GameObject.Find("star");
         star.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
-        GameObject controller_dummy = GameObject.Find("controller_dummy");
-        controller_dummy.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
+        //GameObject controller_dummy = GameObject.Find("controller_dummy");
+        //controller_dummy.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
     }
     
 
     // Update:
     void Update()
     {
-        float escape = Input.GetAxis("escape");
+        /*float escape = Input.GetAxis("escape");
         if (escape > 0.0f)
         {
             Application.Quit();
-        }
+        }*/
         float trigger_left = Input.GetAxis("LeftControllerTrigger");
         float trigger_right = Input.GetAxis("RightControllerTrigger");
 
