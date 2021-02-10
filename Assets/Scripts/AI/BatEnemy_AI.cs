@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public class BatEnemy_AI : MonoBehaviour 
 {
+    public Slider enemyHealthbar;
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
     private float chaseSpeed = 11f;
@@ -153,6 +155,32 @@ public class BatEnemy_AI : MonoBehaviour
     {
         if(other.gameObject.tag == "Player") {
             state = State.Idle;
+        }
+    }
+
+    public void TakeDamage(float _damage, Spell.SpellType _spellType)
+    {
+        Debug.Log("Enemy took " + _damage.ToString() + " of damage");
+
+        if(_spellType == Spell.SpellType.Ice)
+        {
+            Debug.Log("spell type is Ice");
+            enemyHealthbar.value -= 20;
+            currentHealth -= 20;
+        }
+
+        if (_spellType == Spell.SpellType.Fire)
+        {
+            Debug.Log("spell type is Fire");
+            enemyHealthbar.value -= 40;
+            currentHealth -= 40;
+        }
+
+    }
+
+    private void IsDead() {
+        if(currentHealth <= 0) {
+            // destroy gameobject
         }
     }
 }
