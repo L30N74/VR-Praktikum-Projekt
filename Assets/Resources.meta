@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 03f29510e82000000000000000000000
+=======
+guid: 2f3cebbb433d5fb4b94af12f0eb671c0
+>>>>>>> spell-book
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
