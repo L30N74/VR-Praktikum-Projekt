@@ -7,6 +7,9 @@ using UnityEngine.UI;
 public class BatEnemy_AI : MonoBehaviour 
 {
     public Slider enemyHealthbar;
+    public Gradient gradient;
+    public Image barColor;
+
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
     private float chaseSpeed = 11f;
@@ -40,6 +43,8 @@ public class BatEnemy_AI : MonoBehaviour
     {
         agent = GetComponentInParent<NavMeshAgent>();
         currentHealth = maxHealth;
+        enemyHealthbar.value = currentHealth;
+        barColor.color = gradient.Evaluate(1f);
         essenceCount = 0;
         attackTarget = null;
         agent.speed = roamingSpeed;
@@ -165,15 +170,16 @@ public class BatEnemy_AI : MonoBehaviour
         if(_spellType == Spell.SpellType.Ice)
         {
             Debug.Log("spell type is Ice");
-            enemyHealthbar.value -= 20;
-            currentHealth -= 20;
+            currentHealth -= _damage;
+            enemyHealthbar.value = currentHealth;
+            barColor.color = gradient.Evaluate(enemyHealthbar.normalizedValue);
         }
 
         if (_spellType == Spell.SpellType.Fire)
         {
             Debug.Log("spell type is Fire");
-            enemyHealthbar.value -= 40;
-            currentHealth -= 40;
+            currentHealth -= _damage;
+            enemyHealthbar.value = currentHealth;
         }
 
     }

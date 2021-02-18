@@ -20,7 +20,7 @@ public class Spell : MonoBehaviour {
     public float dealDamageTimer;
     private float timer;
     public float lifeTimeTimer;
-    public GameObject iceParticles;
+    public GameObject collisionParticles;
 
     public enum SpellType { Ice, Fire};
     public SpellType spellType;
@@ -28,9 +28,7 @@ public class Spell : MonoBehaviour {
     private void Start()
     {
         myBody = GetComponent<Rigidbody>();
-        myRend = GetComponent<MeshRenderer>();
         myCollider = GetComponent<Collider>();
-        firstChild = transform.GetChild(0).gameObject;
     }
 
     private void Update()
@@ -47,7 +45,7 @@ public class Spell : MonoBehaviour {
             timer += Time.deltaTime;
             if (timer >= dealDamageTimer)
             {
-                timer = 0;
+               timer = 0;
 
                 for (int i = 0; i < enemyHealth.Count; i++)
                 {
@@ -66,12 +64,19 @@ public class Spell : MonoBehaviour {
         }
     }
 
+    private void OnParticleCollision(Collision other)
+    {
+        if (other.gameObject.tag == "Enemy" || other.gameObject.tag == "Ground")
+        {
+            HideStuff();
+            DoDamage();
+        }
+    }
+
     private void HideStuff()
     {
         myBody.constraints = RigidbodyConstraints.FreezeAll;
-        myRend.enabled = false;
         myCollider.enabled = false;
-        firstChild.SetActive(false);
     }
 
     private void DoDamage()
@@ -84,7 +89,7 @@ public class Spell : MonoBehaviour {
 
             if (colls[i].tag == "Enemy")
             {
-                GameObject go = Instantiate(iceParticles, current.transform.position, Quaternion.identity);
+                GameObject go = Instantiate(collisionParticles, current.transform.position, Quaternion.identity);
                 go.transform.parent = this.transform;
 
                 BatEnemy_AI currentHealth = current.GetComponent<BatEnemy_AI>();

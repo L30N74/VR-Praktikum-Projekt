@@ -6,6 +6,7 @@ TagManager:
   tags:
   - EssenceDelivery
   - EssenceCollector
+  - Enemy
   layers:
   - Default
   - TransparentFX
