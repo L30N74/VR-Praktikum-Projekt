@@ -12,6 +12,9 @@ public class Spell : MonoBehaviour {
     private Collider myCollider;
     private GameObject firstChild;//trail renderer
 
+    private ParticleSystem fireball;
+    private ParticleSystem[] fireballChildren;
+
     private bool dealDamage = false;
     private List<BatEnemy_AI> enemyHealth = new List<BatEnemy_AI>();
 
@@ -29,6 +32,8 @@ public class Spell : MonoBehaviour {
     {
         myBody = GetComponent<Rigidbody>();
         myCollider = GetComponent<Collider>();
+        fireball = GetComponent<ParticleSystem>();
+        fireballChildren = GetComponentsInChildren<ParticleSystem>();
     }
 
     private void Update()
@@ -42,10 +47,18 @@ public class Spell : MonoBehaviour {
 
         if (dealDamage)
         {
+            var emission = fireball.emission;
+            emission.enabled = false;
+            foreach ( ParticleSystem ps in fireballChildren)
+            {
+                var emissions = ps.emission;
+                emissions.enabled = false;
+            }
             timer += Time.deltaTime;
             if (timer >= dealDamageTimer)
             {
                timer = 0;
+               
 
                 for (int i = 0; i < enemyHealth.Count; i++)
                 {

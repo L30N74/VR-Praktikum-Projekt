@@ -198,13 +198,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 20596798}
-  m_LocalRotation: {x: -0, y: 0.9028517, z: -0, w: 0.42995209}
+  m_LocalRotation: {x: -0, y: 0.904045, z: -0, w: 0.42743722}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1377291663}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 129.071, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 129.39, z: 0}
 --- !u!114 &20596802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1015,14 +1015,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1377291659}
-  m_LocalRotation: {x: -0, y: -0.33305642, z: -0, w: 0.942907}
+  m_LocalRotation: {x: -0, y: 0.32076934, z: -0, w: -0.9471574}
   m_LocalPosition: {x: 0.155, y: 2.6408367, z: 8.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 20596801}
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: -38.909, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 322.581, z: 0}
 --- !u!114 &1377291664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1037,7 +1037,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spellPrefab: {fileID: 312597936713097561, guid: 9633fe7fab8486e40be2b733210ad564,
     type: 3}
-  throwForce: 20
+  throwForce: 100
   spawnPoint: {fileID: 20596801}
 --- !u!1 &1630135187
 GameObject:
