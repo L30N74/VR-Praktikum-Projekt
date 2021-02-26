@@ -13,6 +13,7 @@ public class BatEnemy_AI : MonoBehaviour
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
     private float chaseSpeed = 11f;
+    private Rigidbody rigidbody;
 
     private float currentHealth;
     private float maxHealth = 100f; 
@@ -42,6 +43,7 @@ public class BatEnemy_AI : MonoBehaviour
     void Start() 
     {
         agent = GetComponentInParent<NavMeshAgent>();
+        rigidbody = GetComponent<Rigidbody>();
         currentHealth = maxHealth;
         enemyHealthbar.value = currentHealth;
         barColor.color = gradient.Evaluate(1f);
@@ -165,6 +167,7 @@ public class BatEnemy_AI : MonoBehaviour
 
     public void TakeDamage(float _damage, Spell.SpellType _spellType)
     {
+        float freezTimer = 3;
         Debug.Log("Enemy took " + _damage.ToString() + " of damage");
 
         if(_spellType == Spell.SpellType.Ice)
@@ -172,7 +175,15 @@ public class BatEnemy_AI : MonoBehaviour
             Debug.Log("spell type is Ice");
             currentHealth -= _damage;
             enemyHealthbar.value = currentHealth;
-            barColor.color = gradient.Evaluate(enemyHealthbar.normalizedValue);
+            // freez bat TODO
+           // rigidbody.constraints = RigidbodyConstraints.FreezePosition;
+            if (freezTimer > 0)
+            {
+                freezTimer -= Time.deltaTime;
+            } else {
+               // rigidbody.constraints = false;
+            }
+            // barColor.color = gradient.Evaluate(enemyHealthbar.normalizedValue);
         }
 
         if (_spellType == Spell.SpellType.Fire)
