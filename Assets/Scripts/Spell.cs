@@ -12,8 +12,8 @@ public class Spell : MonoBehaviour {
     private Collider myCollider;
     private GameObject firstChild;//trail renderer
 
-    private ParticleSystem fireball;
-    private ParticleSystem[] fireballChildren;
+    private ParticleSystem spellParticle;
+    private ParticleSystem[] spellParticleChildren;
 
     private bool dealDamage = false;
     private List<BatEnemy_AI> enemyHealth = new List<BatEnemy_AI>();
@@ -23,7 +23,7 @@ public class Spell : MonoBehaviour {
     public float dealDamageTimer;
     private float timer;
     public float lifeTimeTimer;
-    public GameObject collisionParticles;
+   //  public GameObject collisionParticles;
 
     public enum SpellType { Ice, Fire};
     public SpellType spellType;
@@ -32,8 +32,8 @@ public class Spell : MonoBehaviour {
     {
         myBody = GetComponent<Rigidbody>();
         myCollider = GetComponent<Collider>();
-        fireball = GetComponent<ParticleSystem>();
-        fireballChildren = GetComponentsInChildren<ParticleSystem>();
+        spellParticle = GetComponent<ParticleSystem>();
+        spellParticleChildren = GetComponentsInChildren<ParticleSystem>();
     }
 
     private void Update()
@@ -47,9 +47,9 @@ public class Spell : MonoBehaviour {
 
         if (dealDamage)
         {
-            var emission = fireball.emission;
+            var emission = spellParticle.emission;
             emission.enabled = false;
-            foreach ( ParticleSystem ps in fireballChildren)
+            foreach ( ParticleSystem ps in spellParticleChildren)
             {
                 var emissions = ps.emission;
                 emissions.enabled = false;
@@ -63,21 +63,22 @@ public class Spell : MonoBehaviour {
                 for (int i = 0; i < enemyHealth.Count; i++)
                 {
                     enemyHealth[i].TakeDamage(damage, spellType);
+                    // DoDamage();
                 }
             }
         }
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Enemy" || other.gameObject.tag == "Ground")
-        {
+        {   
             HideStuff();
             DoDamage();
         }
     }
 
-    private void OnParticleCollision(Collision other)
+    private void OnParticleCollision(GameObject other)
     {
         if (other.gameObject.tag == "Enemy" || other.gameObject.tag == "Ground")
         {
@@ -88,7 +89,7 @@ public class Spell : MonoBehaviour {
 
     private void HideStuff()
     {
-        myBody.constraints = RigidbodyConstraints.FreezeAll;
+        // myBody.constraints = RigidbodyConstraints.FreezeAll;
         myCollider.enabled = false;
     }
 
@@ -98,14 +99,11 @@ public class Spell : MonoBehaviour {
 
         for (int i = 0; i < colls.Length; i++)
         {
-            Collider current = colls[i];
+            Collider coll = colls[i];
 
             if (colls[i].tag == "Enemy")
             {
-                GameObject go = Instantiate(collisionParticles, current.transform.position, Quaternion.identity);
-                go.transform.parent = this.transform;
-
-                BatEnemy_AI currentHealth = current.GetComponent<BatEnemy_AI>();
+                BatEnemy_AI currentHealth = coll.GetComponent<BatEnemy_AI>();
                 currentHealth.TakeDamage(damage, spellType);
             }
         }

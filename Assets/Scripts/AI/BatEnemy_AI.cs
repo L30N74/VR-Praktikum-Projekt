@@ -9,11 +9,13 @@ public class BatEnemy_AI : MonoBehaviour
     public Slider enemyHealthbar;
     public Gradient gradient;
     public Image barColor;
+    public GameObject ice;
 
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
     private float chaseSpeed = 11f;
     private Rigidbody rigidbody;
+    private Collider collider;
 
     private float currentHealth;
     private float maxHealth = 100f; 
@@ -31,6 +33,7 @@ public class BatEnemy_AI : MonoBehaviour
     private float deliveryCooldown = 1.5f;
     private float secsToNextHarvest = 0.0f;
     private float harvestCooldown = 1.5f;
+    private float freezTimer = 3;
 
     NavMeshAgent agent;
     GameObject attackTarget;
@@ -44,6 +47,7 @@ public class BatEnemy_AI : MonoBehaviour
     {
         agent = GetComponentInParent<NavMeshAgent>();
         rigidbody = GetComponent<Rigidbody>();
+        collider = GetComponent<Collider>();
         currentHealth = maxHealth;
         enemyHealthbar.value = currentHealth;
         barColor.color = gradient.Evaluate(1f);
@@ -167,12 +171,15 @@ public class BatEnemy_AI : MonoBehaviour
 
     public void TakeDamage(float _damage, Spell.SpellType _spellType)
     {
-        float freezTimer = 3;
         Debug.Log("Enemy took " + _damage.ToString() + " of damage");
-
+        GameObject collisionParticles;
+        Debug.Log("spell type is " + _spellType);
         if(_spellType == Spell.SpellType.Ice)
         {
-            Debug.Log("spell type is Ice");
+            collisionParticles = (GameObject)Resources.Load("IceExplosion");
+            Debug.Log("collisionParticles " + collisionParticles);
+            GameObject go = Instantiate(collisionParticles, collider.transform.position, Quaternion.identity);
+
             currentHealth -= _damage;
             enemyHealthbar.value = currentHealth;
             // freez bat TODO
@@ -181,13 +188,16 @@ public class BatEnemy_AI : MonoBehaviour
             {
                 freezTimer -= Time.deltaTime;
             } else {
-               // rigidbody.constraints = false;
+               rigidbody.constraints = RigidbodyConstraints.FreezeAll;
             }
             // barColor.color = gradient.Evaluate(enemyHealthbar.normalizedValue);
         }
 
         if (_spellType == Spell.SpellType.Fire)
-        {
+        {   
+            collisionParticles = (GameObject)Resources.Load("FireExplosion");
+            GameObject go = Instantiate(collisionParticles, collider.transform.position, Quaternion.identity);
+           
             Debug.Log("spell type is Fire");
             currentHealth -= _damage;
             enemyHealthbar.value = currentHealth;
