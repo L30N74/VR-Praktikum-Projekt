@@ -17,11 +17,11 @@ public class CastSpell : MonoBehaviour {
 
     private void Update()
     {
-        /*if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0))
         {
             GameObject spellGo = Instantiate(spellPrefab, spawnPoint.position, spawnPoint.rotation);
             spellGo.GetComponent<Rigidbody>().AddForce(spawnPoint.forward * throwForce, ForceMode.Impulse);
-        }*/
+        }
     }
 
 }

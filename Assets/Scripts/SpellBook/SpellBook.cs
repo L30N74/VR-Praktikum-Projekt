@@ -22,9 +22,12 @@ public class SpellBook : MonoBehaviour
     public int currentPageNumber;
     public Pages[] pages;
 
+    AudioSource audioSource;
+
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         currentPage = pages[0].page;
         currentPageNumber = 0;
         display();
@@ -33,13 +36,14 @@ public class SpellBook : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0)) {
+        /**if (Input.GetMouseButtonDown(0)) {
             displayNextPage();
-        }
+        }**/
     }
     void displayNextPage() {
+        audioSource.Play(0);
+        Debug.Log("started");
         int length = pages.Length;
-
         if(currentPageNumber !=null)
         {
             if(currentPageNumber + 1 < length) {
