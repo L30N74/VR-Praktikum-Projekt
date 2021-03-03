@@ -12,16 +12,17 @@ GameObject:
   - component: {fileID: 3773869831916123494}
   - component: {fileID: 3773869831916123493}
   - component: {fileID: 3773869831916123492}
-  - component: {fileID: 3773869831916123491}
-  - component: {fileID: 3773869831916123496}
-  - component: {fileID: 3773869831916123497}
+  - component: {fileID: 1116435021}
+  - component: {fileID: 1116435023}
+  - component: {fileID: 1116435022}
+  - component: {fileID: 5024312768529617017}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3773869831916123495
 Transform:
   m_ObjectHideFlags: 0
@@ -90,7 +91,7 @@ MonoBehaviour:
   m_Controllers:
   - {fileID: 3773869833209542622}
   m_DeadZone: 0.75
---- !u!114 &3773869831916123491
+--- !u!114 &1116435021
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -99,11 +100,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 3773869831916123490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01f69dc1cb084aa42b2f2f8cd87bc770, type: 3}
+  m_Script: {fileID: 11500000, guid: 5453fb72d1688874f8970aa05293e319, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_System: {fileID: 3773869831916123493}
---- !u!114 &3773869831916123496
+  spellPrefab: {fileID: 0}
+  throwForce: 10
+  spawnPoint: {fileID: 3773869833906263291}
+--- !u!143 &1116435023
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3773869831916123490}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1116435022
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -112,18 +133,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 3773869831916123490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3eff2abc5afae34da52e92f63daa358, type: 3}
+  m_Script: {fileID: 11500000, guid: d302c7642331f0c4795eeee1a9440c9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftController: {fileID: 3773869833209542562}
-  rightController: {fileID: 3773869833319356810}
-  LoadGesturesFile: MyGestures.dat
-  SaveGesturesFile: MyTwoHandedGestures.dat
-  ControllerMotionDistanceThreshold: 1
-  ControllerMotionTimeThreshold: 0.1
-  grabbable: {fileID: 0}
-  grabbable2: {fileID: 0}
---- !u!114 &3773869831916123497
+  inputSource: 4
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  speed: 2
+  additionalHeight: 0.2
+  gravity: 9.81
+--- !u!114 &5024312768529617017
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,13 +152,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3773869831916123490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eaad6c28043977443b66d123f417f679, type: 3}
+  m_Script: {fileID: 11500000, guid: f061246599f410143b67632f1540836a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftController: {fileID: 3773869833209542562}
-  rightController: {fileID: 3773869833319356810}
-  LoadGesturesFile: Sample_OneHanded_Gestures.dat
-  SaveGesturesFile: MyOneHandedGestures.dat
 --- !u!1 &3773869832541258360
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,6 +902,7 @@ GameObject:
   - component: {fileID: 3773869833906263294}
   - component: {fileID: 3773869833906263293}
   - component: {fileID: 3773869833906263292}
+  - component: {fileID: 779687980}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -943,8 +960,8 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
+  m_HDR: 0
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -976,6 +993,110 @@ MonoBehaviour:
   m_TrackingType: 0
   m_UpdateType: 0
   m_UseRelativeTransform: 0
+--- !u!114 &779687980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3773869833906263290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23c1ce4fb46143f46bc5cb5224c934f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 7
+  m_ObsoleteRenderingPath: 0
+  m_ObsoleteFrameSettings:
+    overrides: 0
+    enableShadow: 0
+    enableContactShadows: 0
+    enableShadowMask: 0
+    enableSSR: 0
+    enableSSAO: 0
+    enableSubsurfaceScattering: 0
+    enableTransmission: 0
+    enableAtmosphericScattering: 0
+    enableVolumetrics: 0
+    enableReprojectionForVolumetrics: 0
+    enableLightLayers: 0
+    enableExposureControl: 1
+    diffuseGlobalDimmer: 0
+    specularGlobalDimmer: 0
+    shaderLitMode: 0
+    enableDepthPrepassWithDeferredRendering: 0
+    enableTransparentPrepass: 0
+    enableMotionVectors: 0
+    enableObjectMotionVectors: 0
+    enableDecals: 0
+    enableRoughRefraction: 0
+    enableTransparentPostpass: 0
+    enableDistortion: 0
+    enablePostprocess: 0
+    enableOpaqueObjects: 0
+    enableTransparentObjects: 0
+    enableRealtimePlanarReflection: 0
+    enableMSAA: 0
+    enableAsyncCompute: 0
+    runLightListAsync: 0
+    runSSRAsync: 0
+    runSSAOAsync: 0
+    runContactShadowsAsync: 0
+    runVolumeVoxelizationAsync: 0
+    lightLoopSettings:
+      overrides: 0
+      enableDeferredTileAndCluster: 0
+      enableComputeLightEvaluation: 0
+      enableComputeLightVariants: 0
+      enableComputeMaterialVariants: 0
+      enableFptlForForwardOpaque: 0
+      enableBigTilePrepass: 0
+      isFptlEnabled: 0
+  clearColorMode: 0
+  backgroundColorHDR: {r: 0.025, g: 0.07, b: 0.19, a: 0}
+  clearDepth: 1
+  volumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  volumeAnchorOverride: {fileID: 0}
+  antialiasing: 0
+  SMAAQuality: 2
+  dithering: 0
+  stopNaNs: 0
+  taaSharpenStrength: 0.6
+  physicalParameters:
+    m_Iso: 200
+    m_ShutterSpeed: 0.005
+    m_Aperture: 16
+    m_BladeCount: 5
+    m_Curvature: {x: 2, y: 11}
+    m_BarrelClipping: 0.25
+    m_Anamorphism: 0
+  flipYMode: 0
+  fullscreenPassthrough: 0
+  allowDynamicResolution: 0
+  customRenderingSettings: 0
+  invertFaceCulling: 0
+  probeLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  hasPersistentHistory: 0
+  m_RenderingPathCustomFrameSettings:
+    bitDatas:
+      data1: 70280697347917
+      data2: 4539628424926265344
+    lodBias: 1
+    lodBiasMode: 0
+    lodBiasQualityLevel: 0
+    maximumLODLevel: 0
+    maximumLODLevelMode: 0
+    maximumLODLevelQualityLevel: 0
+    materialQuality: 0
+  renderingPathCustomFrameSettingsOverrideMask:
+    mask:
+      data1: 0
+      data2: 0
+  defaultFrameSettings: 0
 --- !u!1001 &3773869833097717175
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -7,17 +7,18 @@ public class PlayerStats : MonoBehaviour
     public int currentHealth {private set; get;}
     public int maxHealth {private set; get;}
 
+    public bool isRestricted = false;
+    private float restrictionTimeout;
+    private float timeSinceRestrictionStart;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Update()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        if (isRestricted) {
+            timeSinceRestrictionStart += Time.deltaTime;
+            if (timeSinceRestrictionStart >= restrictionTimeout) {
+                isRestricted = false;
+            }
+        }
     }
 
     /// <summary>
@@ -30,6 +31,13 @@ public class PlayerStats : MonoBehaviour
             this.currentHealth += Mathf.Clamp(currentHealth + value, 0, maxHealth);
         else
             this.currentHealth += Mathf.Clamp(currentHealth - value, 0, maxHealth);
+    }
+
+    public void RestrictMovement(float time)
+    {
+        isRestricted = true;
+        restrictionTimeout = time;
+        timeSinceRestrictionStart = 0;
     }
 }
 
