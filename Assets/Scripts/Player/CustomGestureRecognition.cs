@@ -11,6 +11,7 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class CustomGestureRecognition : MonoBehaviour
 {
+    public Transform gestureOrigin;
     public Transform leftController;
     private InputDevice leftController_device;
     public Transform rightController;
@@ -83,8 +84,10 @@ public class CustomGestureRecognition : MonoBehaviour
 
         if (trigger_left > 0.85 || trigger_right > 0.85 && !(trigger_left > 0.5 && trigger_right > 0.5)) {
             // The user is still dragging with the controller: continue the gesture.
-            Vector3 p = active_controller.transform.position;
-            Quaternion q = active_controller.transform.rotation;
+            //Vector3 p = active_controller.transform.position;
+            //Quaternion q = active_controller.transform.rotation;
+            Vector3 p = gestureOrigin.position;
+            Quaternion q = gestureOrigin.rotation;
             gr.contdStrokeQ(p, q);
             return;
         }

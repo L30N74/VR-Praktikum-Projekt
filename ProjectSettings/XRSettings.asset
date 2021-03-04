@@ -7,6 +7,6 @@
     "m_SettingValues": [
         "True",
         "False",
-        "Standalone,iPhone,Android,Metro"
+        ",Standalone,iPhone,Android,Metro"
     ]
 }

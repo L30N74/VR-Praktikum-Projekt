@@ -26,6 +26,8 @@ public class BossAI : MonoBehaviour
     private Color eyeColor_normal = new Color(204, 204, 204);
     private Color eyeColor_rage = new Color(207, 20, 20);
 
+    private float eyeFollowSpeed = 2f;
+
     private NavMeshAgent agent;
 
     //** AI **\\
@@ -105,10 +107,9 @@ public class BossAI : MonoBehaviour
         if (!isAggro)
             return;
 
-        // Rotate eye towards player when in fov
-        TargetEyeTracker();
+        RotateTowardsTarget();
 
-        HandleAttack();
+        //HandleAttack();
 
         /*if(!secondPhaseEntered)
             if(currentHealth < maxHealth / 2 && shieldAmount < maxShieldAmount / 3 && GetManaReservoirsAmount() == 0) {
@@ -122,9 +123,14 @@ public class BossAI : MonoBehaviour
             }*/
     }
 
-    private void TargetEyeTracker()
+    private void RotateTowardsTarget()
     {
+        Vector3 direction = player.position - body.position;
+        //Quaternion rotation = direction; //Quaternion.LookRotation(direction, Vector3.up);
 
+        Quaternion rotation = Quaternion.LookRotation(direction);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, eyeFollowSpeed * Time.deltaTime);
     }
 
     /// <summary>

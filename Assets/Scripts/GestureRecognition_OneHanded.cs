@@ -62,7 +62,7 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
     void Start ()
     {
         // Set the welcome message.
-        HUDText = GameObject.Find("HUDText-One").GetComponent<TextMeshProUGUI>();
+        HUDText = GameObject.Find("HUDText").GetComponent<TextMeshProUGUI>();
         HUDText.text = "Welcome to MARUI Gesture Plug-in!\n"
                       + "Press the trigger to draw a gesture. Available gestures:\n"
                       + "1 - a circle/ring (creates a cylinder)\n"
@@ -169,8 +169,8 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
         //     controller_dummy_right.SetActive(true);
         // }
         
-        GameObject star = GameObject.Find("star");
-        star.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
+        //GameObject star = GameObject.Find("star");
+        //star.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
     }
     
 
@@ -260,32 +260,32 @@ public class GestureRecognition_OneHanded : MonoBehaviour {
             Vector3 p = active_controller.transform.position;
             Quaternion q = active_controller.transform.rotation;
             gr.contdStrokeQ(p, q);
-            // Show the stroke by instatiating new objects
-            GameObject star_instance = Instantiate(GameObject.Find("star"));
+            /*// Show the stroke by instatiating new objects
+            //GameObject star_instance = Instantiate(GameObject.Find("star"));
             GameObject star = new GameObject("stroke_" + stroke_index++);
-            star_instance.name = star.name + "_instance";
-            star_instance.transform.SetParent(star.transform, false);
+            //star_instance.name = star.name + "_instance";
+            //star_instance.transform.SetParent(star.transform, false);
             System.Random random = new System.Random();
             star.transform.position = new Vector3(p.x + (float)random.NextDouble() / 80, p.y + (float)random.NextDouble() / 80, p.z + (float)random.NextDouble() / 80);
             star.transform.rotation = new Quaternion((float)random.NextDouble() - 0.5f, (float)random.NextDouble() - 0.5f, (float)random.NextDouble() - 0.5f, (float)random.NextDouble() - 0.5f).normalized;
             //star.transform.rotation.Normalize();
             float star_scale = (float)random.NextDouble() + 0.3f;
-            star.transform.localScale = new Vector3(star_scale, star_scale, star_scale);
-            stroke.Add(star.name);
+            star.transform.localScale = new Vector3(star_scale, star_scale, star_scale);*/
+            //stroke.Add(star.name);
             return;
         }
         // else: if we arrive here, the user let go of the trigger, ending a gesture.
         active_controller = null;
 
         // Delete the objects that we used to display the gesture.
-        foreach (string star in stroke) {
+        /*foreach (string star in stroke) {
             GameObject star_object = GameObject.Find(star);
             if (star_object != null) {
                 Destroy(star_object);
             }
         }
         stroke.Clear();
-        stroke_index = 0;
+        stroke_index = 0;*/
 
         double similarity = 0; // This will receive a value of how similar the performed gesture was to previous recordings.
         Vector3 pos = Vector3.zero; // This will receive the position where the gesture was performed.

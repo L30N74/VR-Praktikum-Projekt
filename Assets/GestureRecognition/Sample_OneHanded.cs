@@ -39,6 +39,9 @@ using UnityEngine.Networking;
 
 public class Sample_OneHanded : MonoBehaviour
 {
+    public GameObject right_hand;
+    public GameObject left_hand;
+
     // The file from which to load gestures on startup.
     // For example: "Assets/GestureRecognition/sample_gestures.dat"
     [SerializeField] private string LoadGesturesFile;
@@ -174,7 +177,7 @@ public class Sample_OneHanded : MonoBehaviour
         {
             controller_oculus_left.SetActive(true);
             controller_oculus_right.SetActive(true);
-        } else if (input_device.Length >= 4 && input_device.Substring(0, 4) == "Vive")
+        } /*else if (input_device.Length >= 4 && input_device.Substring(0, 4) == "Vive")
         {
             controller_vive_left.SetActive(true);
             controller_vive_right.SetActive(true);
@@ -188,12 +191,12 @@ public class Sample_OneHanded : MonoBehaviour
         {
             controller_dummy_left.SetActive(true);
             controller_dummy_right.SetActive(true);
-        }
+        }*/
         
-        GameObject star = GameObject.Find("star");
-        star.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
-        GameObject controller_dummy = GameObject.Find("controller_dummy");
-        controller_dummy.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
+        /*GameObject star = GameObject.Find("star");
+        star.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);*/
+        //GameObject controller_dummy = GameObject.Find("controller_dummy");
+        //controller_dummy.transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
     }
     
 
@@ -258,10 +261,10 @@ public class Sample_OneHanded : MonoBehaviour
             // If the user presses either controller's trigger, we start a new gesture.
             if (trigger_right > 0.9) {
                 // Right controller trigger pressed.
-                active_controller = GameObject.Find("Right Hand");
+                active_controller = right_hand;
             } else if (trigger_left > 0.9) {
                 // Left controller trigger pressed.
-                active_controller = GameObject.Find("Left Hand");
+                active_controller = left_hand;
             } else {
                 // If we arrive here, the user is pressing neither controller's trigger:
                 // nothing to do.
@@ -282,7 +285,7 @@ public class Sample_OneHanded : MonoBehaviour
             Quaternion q = active_controller.transform.rotation;
             gr.contdStrokeQ(p, q);
             // Show the stroke by instatiating new objects
-            GameObject star_instance = Instantiate(GameObject.Find("star"));
+            /*GameObject star_instance = Instantiate(GameObject.Find("star"));
             GameObject star = new GameObject("stroke_" + stroke_index++);
             star_instance.name = star.name + "_instance";
             star_instance.transform.SetParent(star.transform, false);
@@ -292,21 +295,21 @@ public class Sample_OneHanded : MonoBehaviour
             //star.transform.rotation.Normalize();
             float star_scale = (float)random.NextDouble() + 0.3f;
             star.transform.localScale = new Vector3(star_scale, star_scale, star_scale);
-            stroke.Add(star.name);
+            stroke.Add(star.name);*/
             return;
         }
         // else: if we arrive here, the user let go of the trigger, ending a gesture.
         active_controller = null;
 
         // Delete the objects that we used to display the gesture.
-        foreach (string star in stroke) {
+        /*foreach (string star in stroke) {
             GameObject star_object = GameObject.Find(star);
             if (star_object != null) {
                 Destroy(star_object);
             }
         }
         stroke.Clear();
-        stroke_index = 0;
+        stroke_index = 0;*/
 
         double similarity = 0; // This will receive a value of how similar the performed gesture was to previous recordings.
         Vector3 pos = Vector3.zero; // This will receive the position where the gesture was performed.
@@ -357,7 +360,7 @@ public class Sample_OneHanded : MonoBehaviour
         {
             // "loop"-gesture: create cylinder
             HUDText.text = "Identified a CIRCLE/LOOP gesture!";
-            GameObject cylinder = Instantiate(GameObject.Find("controller_dummy"));
+            GameObject cylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder); //Instantiate(GameObject.Find("controller_dummy"));
             cylinder.transform.position = pos;
             cylinder.transform.rotation = Quaternion.FromToRotation(new Vector3(0, 1, 0), dir2);
             cylinder.transform.localScale = new Vector3((float)scale * 2, (float)scale, (float)scale * 2);
@@ -450,7 +453,7 @@ public class Sample_OneHanded : MonoBehaviour
         {
             me.SaveGesturesFile = "Sample_OneHanded_MyRecordedGestures.dat";
         }
-        me.gr.saveToFile(GesturesFilePath + "/" + me.SaveGesturesFile);
+        me.gr.saveToFile("Assets/Gestures/" + me.SaveGesturesFile);
     }
 
     // Helper function to find a GameObject in the world based on it's position.

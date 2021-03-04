@@ -44,12 +44,12 @@ public class MovementProvider : MonoBehaviour
         CharacterControllerFollowHeadset();
 
         // Gravity
-        if (!CheckGrounded())
+        if (CheckGrounded())
             fallSpeed = 0f;
         else
             fallSpeed += gravity * Time.fixedDeltaTime;
 
-        character.Move(Vector3.up * fallSpeed * Time.fixedDeltaTime);
+        character.Move(Vector3.down * fallSpeed * Time.fixedDeltaTime);
 
 
         if (playerStatsScript.isRestricted)
@@ -70,7 +70,7 @@ public class MovementProvider : MonoBehaviour
     private bool CheckGrounded()
     {
         Vector3 rayStart = transform.TransformPoint(character.center);
-        float rayLength = character.center.y + 0.01f;
+        float rayLength = character.center.y + 0.05f;
 
         return Physics.SphereCast(rayStart, character.radius, Vector3.down, out RaycastHit hitInfo, groundLayer);
     }
