@@ -23,4 +23,8 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/GestureRecognition/Sample_Phone.unity
     guid: 0dcf345530576b944bc32f4fc7f8c0fe
-  m_configObjects: {}
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 41aa045d44cdd6a4e839c7c876b9367b,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 5a33eeeb0d8e5594f904e8b09b423d03,
+      type: 2}

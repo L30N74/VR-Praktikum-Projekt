@@ -6,7 +6,6 @@ using TMPro;
 
 public class GestureHandler : MonoBehaviour
 {
-
     public GameObject boulderPrefab;
     public float boulderYOffset;
     public float maxBoulderDistance;
@@ -54,8 +53,6 @@ public class GestureHandler : MonoBehaviour
             left_controller = GameObject.Find("RightHand Controller").transform;
         if (!right_controller)
             right_controller = GameObject.Find("LeftHand Controller").transform;
-
-        text = GameObject.Find("HUDText").GetComponent<TextMeshProUGUI>(); 
     }
 
     public void Update()
@@ -82,6 +79,20 @@ public class GestureHandler : MonoBehaviour
             }
         }
     }
+
+    public void ExecuteSpellByName(string spellName)
+    {
+        switch(spellName) 
+        {
+            case "fire":
+                text.text = "Used fire spell";
+                break;
+            case "ice":
+                text.text = "Used ice spell";
+                break;
+        }
+    }
+
 
     private void HandleBoulderMovement()
     {
