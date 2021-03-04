@@ -104,9 +104,13 @@ public class BossAI : MonoBehaviour
 
         if (!isAggro)
             return;
+        
 
         // Rotate eye towards player when in fov
         TargetEyeTracker();
+
+        // Rotate body towards player
+        RotateTowardsTarget();
 
         HandleAttack();
 
@@ -122,10 +126,24 @@ public class BossAI : MonoBehaviour
             }*/
     }
 
-    private void TargetEyeTracker()
+   private void TargetEyeTracker()
     {
+        Vector3 direction = eyeFollowTarget.position - eye.position;
+        Quaternion rotation = Quaternion.LookRotation(direction);
+        rotation.x -= 1f; // The eye is weird... ^^'
 
+        eye.rotation = Quaternion.Lerp(eye.rotation, rotation, eyeFollowSpeed * Time.deltaTime);
     }
+
+    private void RotateTowardsTarget()
+    {
+        Vector3 direction = eyeFollowTarget.position - body.position;
+        //Quaternion rotation = direction; //Quaternion.LookRotation(direction, Vector3.up);
+
+        Quaternion rotation = Quaternion.LookRotation(direction);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, eyeFollowSpeed * Time.deltaTime);
+    }}
 
     /// <summary>
     /// Determines which attack the boss should execute based on a sequence of random numbers.
