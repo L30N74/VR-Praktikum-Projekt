@@ -35,8 +35,15 @@ public class GestureRecognizer : MonoBehaviour
     private InputDevice controller_device;
     private bool isMoving;
 
-    private List<Vector3> positionList = new List<Vector3>();
+    private List<List<Vector3>> positionList = new List<List<Vector3>>();
     private readonly float newPositionThresholdDistance = 0.05f;
+
+    //Time offset for multi-stroke gestures
+    public float maxStrokeDrawTimeOffset = 1.5f;
+    private float timeSinceLastGesture = 0f;
+
+    private int strokeIndex = -1;
+    private bool gestureRecorded = false; 
 
 
     // Start is called before the first frame update
@@ -58,8 +65,7 @@ public class GestureRecognizer : MonoBehaviour
         InputHelpers.IsPressed(controller_device, inputButton, out bool isPressed, inputThreshold);
 
         //Start movement
-        if(!isMoving && isPressed) 
-        {
+        if (!isMoving && isPressed) {
             StartMovement();
         }
         //Update movement
@@ -67,53 +73,74 @@ public class GestureRecognizer : MonoBehaviour
             UpdateMovement();
         }
         //End movement
-        else if(isMoving && !isPressed) 
-        {
+        else if (isMoving && !isPressed) {
             EndMovement();
+        }
+        else if (!isMoving && !isPressed && !gestureRecorded) {
+            timeSinceLastGesture += Time.deltaTime;
+
+            //Determine if gesture is really over of if user can still add new strokes
+            if (timeSinceLastGesture > maxStrokeDrawTimeOffset) {
+                DetermineGesture();
+            }
         }
     }
 
     private void StartMovement()
     {
         debugText.text = "Started a gesture";
-        isMoving = true;
-        positionList.Clear();
-        positionList.Add(movementSource.position);
+
+        timeSinceLastGesture = 0f;
+        positionList.Add(new List<Vector3>());
+        strokeIndex++;
+        positionList[strokeIndex].Add(movementSource.position);
 
         if(showDebugCubes)
             Destroy(Instantiate(debugInstantiatePrefab, movementSource.position, Quaternion.identity), 5f);
+
+        isMoving = true;
+        gestureRecorded = false;
     }
 
     private void UpdateMovement()
     {
-        debugText.text = "Performing a gesture";
-        Vector3 lastPosition = positionList[positionList.Count - 1];
+        debugText.text = "Performing a gesture\nStroke: " + strokeIndex;
+        Vector3 lastPosition = positionList[strokeIndex][positionList[strokeIndex].Count - 1];
 
         if (showDebugCubes)
             Destroy(Instantiate(debugInstantiatePrefab, movementSource.position, Quaternion.identity), 5f);
 
         if (Vector3.Distance(movementSource.position, lastPosition) > newPositionThresholdDistance)
-            positionList.Add(movementSource.position);
+            positionList[strokeIndex].Add(movementSource.position);
     }
 
     private void EndMovement()
     {
         debugText.text += "\nEnded a gesture";
         isMoving = false;
+    }
 
+    private void DetermineGesture()
+    {
         //Create Gesture from position list
-        Point[] pointArray = new Point[positionList.Count];
+        int pointSum = 0;
+        foreach (List<Vector3> list in positionList)
+            pointSum += list.Count;
 
-        for(int i = 0; i < positionList.Count; i++) 
-        {
-            Vector2 screenPoint = Camera.main.WorldToScreenPoint(positionList[i]);
-            pointArray[i] = new Point(screenPoint.x, screenPoint.y, 0);
+        Point[] pointArray = new Point[pointSum];
+
+        int counter = 0;
+        for (int i = 0; i < positionList.Count; i++) {
+            for (int j = 0; j < positionList[i].Count; j++) {
+                Vector2 screenPoint = Camera.main.WorldToScreenPoint(positionList[i][j]);
+                pointArray[counter] = new Point(screenPoint.x, screenPoint.y, i);
+                counter++;
+            }
         }
 
         Gesture newGesture = new Gesture(pointArray);
 
-        if(creationMode) 
-        {
+        if (creationMode) {
             newGesture.Name = newGestureName;
             trainingSet.Add(newGesture);
 
@@ -130,5 +157,10 @@ public class GestureRecognizer : MonoBehaviour
             if (result.Score > recognitionThreshold)
                 onRecognized.Invoke(result.GestureClass);
         }
+
+        gestureRecorded = true;
+        strokeIndex = -1;
+
+        positionList.Clear();
     }
 }

@@ -41,6 +41,8 @@ public class GestureHandler : MonoBehaviour
 	
 	private Rigidbody boulderRigidbody;
 
+    public SpellBook spellbookScript;
+
     public void Start()
     {
         mainCamera = Camera.main;
@@ -86,9 +88,20 @@ public class GestureHandler : MonoBehaviour
         {
             case "fire":
                 text.text = "Used fire spell";
+                if (spellbookScript)
+                    spellbookScript.displayNextPage();
                 break;
             case "ice":
                 text.text = "Used ice spell";
+                break;
+            case "test":
+                text.text = "Used combination spell";
+                break;
+            case "swipe left":
+            case "swipe right":
+                text.text = "swipe";
+                if(spellbookScript)
+                    spellbookScript.displayNextPage();
                 break;
         }
     }

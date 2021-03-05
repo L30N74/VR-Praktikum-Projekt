@@ -11,6 +11,7 @@ public struct Pages
     public Page page;
 }
 
+[RequireComponent(typeof(AudioSource))]
 public class SpellBook : MonoBehaviour
 {
     public TMP_Text title;
@@ -33,32 +34,19 @@ public class SpellBook : MonoBehaviour
         display();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        /**if (Input.GetMouseButtonDown(0)) {
-            displayNextPage();
-        }**/
-    }
-    void displayNextPage() {
-        audioSource.Play(0);
+    public void displayNextPage() {
+        audioSource.Play();
         Debug.Log("started");
         int length = pages.Length;
-        if(currentPageNumber !=null)
-        {
-            if(currentPageNumber + 1 < length) {
-                currentPage = pages[currentPageNumber + 1].page;
-                currentPageNumber++;
-            }else {
-                currentPage = pages[0].page;
-                currentPageNumber = 0;
-            }
-        
-        } else
-        {
+
+        if(currentPageNumber + 1 < length) {
+            currentPage = pages[currentPageNumber + 1].page;
+            currentPageNumber++;
+        }else {
             currentPage = pages[0].page;
             currentPageNumber = 0;
         }
+
         display();
     }
 

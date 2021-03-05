@@ -7988,6 +7988,102 @@ MonoBehaviour:
   pages:
   - page: {fileID: 11400000, guid: 3dba80c86c5d7504ca17f4ae2ad74b30, type: 2}
   - page: {fileID: 11400000, guid: d01682a1039570449ad9f48b7017d87b, type: 2}
+--- !u!82 &1107419113
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1107419108}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 9559490d8fa31dd4ba51e9776b6b7703, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 0.19
+  MaxDistance: 2
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1163333418
 GameObject:
   m_ObjectHideFlags: 0
@@ -15442,6 +15538,7 @@ MonoBehaviour:
   left_controller: {fileID: 0}
   right_controller: {fileID: 0}
   text: {fileID: 1266096684}
+  spellbookScript: {fileID: 1107419112}
 --- !u!114 &1796768074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15463,8 +15560,8 @@ MonoBehaviour:
   debugText: {fileID: 1266096684}
   creationMode: 0
   showDebugCubes: 0
-  newGestureName: fire
-  recognitionThreshold: 0.6
+  newGestureName: swipe left
+  recognitionThreshold: 0.75
   onRecognized:
     m_PersistentCalls:
       m_Calls:
@@ -15480,6 +15577,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  maxStrokeDrawTimeOffset: 1.5
 --- !u!4 &1796768075
 Transform:
   m_ObjectHideFlags: 0
@@ -18883,7 +18981,7 @@ PrefabInstance:
     - target: {fileID: 4554109217758596520, guid: 3500ea4c8225eb94cb382138be0d2e0f,
         type: 3}
       propertyPath: m_Name
-      value: SpellBook (1)
+      value: SpellBook
       objectReference: {fileID: 0}
     - target: {fileID: 7299526371883970385, guid: 3500ea4c8225eb94cb382138be0d2e0f,
         type: 3}
