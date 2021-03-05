@@ -36,7 +36,6 @@ public class SpellBook : MonoBehaviour
 
     public void displayNextPage() {
         audioSource.Play();
-        Debug.Log("started");
         int length = pages.Length;
 
         if(currentPageNumber + 1 < length) {

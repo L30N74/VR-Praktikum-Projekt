@@ -4,40 +4,41 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
-public class BatEnemy_AI : MonoBehaviour 
+public class BatEnemy_AI : MonoBehaviour, IEnemyAI
 {
-    public Slider enemyHealthbar;
-    public Gradient gradient;
+    public Image enemyHealthbar;
     public Image barColor;
     public GameObject ice;
 
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
     private float chaseSpeed = 11f;
-    private Rigidbody rigidbody;
-    private Collider collider;
+    private new Rigidbody rigidbody;
+    private new Collider collider;
 
-    private float currentHealth;
-    private float maxHealth = 100f; 
-    [SerializeField] private float essenceCount;
-    private float essenceMaximum = 100f;
+    private int currentHealth;
+    private int maxHealth = 100; 
+    [SerializeField] private int essenceCount;
+    private float essenceMaximum = 100;
     private float essenceCollectionCooldown = 0.5f;
     private float essenceDeliveryCooldown = 1f;
 
     private float attackDamage = 3;
-    [SerializeField] private float attackRange = 1;
+    [SerializeField] private float attackRange = 2.5f;
     private float attackCooldown = 1.5f;
     private float secsToNextAttack = 0.0f;
 
     private float secsToNextDelivery = 0.0f;
     private float deliveryCooldown = 1.5f;
-    private float secsToNextHarvest = 0.0f;
+    public float secsToNextHarvest = 0.0f;
     private float harvestCooldown = 1.5f;
     private float freezTimer = 3;
 
     NavMeshAgent agent;
     GameObject attackTarget;
     private Transform navmeshTarget;
+
+    private EssenceStockpile essenceStockpileScript;
 
     [SerializeField] private List<Transform> essenceCollectionSpots;
     [SerializeField] private Transform currentEssenceCollectionSpot;
@@ -49,8 +50,8 @@ public class BatEnemy_AI : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
         collider = GetComponent<Collider>();
         currentHealth = maxHealth;
-        enemyHealthbar.value = currentHealth;
-        barColor.color = gradient.Evaluate(1f);
+        enemyHealthbar = GetComponentsInChildren<Image>()[1];
+        enemyHealthbar.fillAmount = currentHealth;
         essenceCount = 0;
         attackTarget = null;
         agent.speed = roamingSpeed;
@@ -63,10 +64,12 @@ public class BatEnemy_AI : MonoBehaviour
 
         // Find and add the essenceDeliverySpot
         essenceDeliverySpot = GameObject.FindGameObjectWithTag("EssenceDelivery").transform;
+        essenceStockpileScript = essenceDeliverySpot.GetComponent<EssenceStockpile>();
 
         // Make sure these spots really are set
         if(essenceDeliverySpot == null) 
             Debug.LogError("No GameObject with the tag \"EssenceDelivery\" in the scene. Make sure there is one.");
+
 
         if(essenceCollectionSpots.Count == 0) 
             Debug.LogError("No GameObjects with the tag \"EssenceCollector\" in the scene. Make sure there is at least one.");
@@ -89,8 +92,8 @@ public class BatEnemy_AI : MonoBehaviour
 
     private void HandleHarvesting() {
         agent.speed = roamingSpeed;
-        if(essenceCount < essenceMaximum) {
-            if(currentEssenceCollectionSpot == null)
+        if (essenceCount < essenceMaximum) {
+            if (currentEssenceCollectionSpot == null)
             {
                 // Select essence Collection Spot
                 int essenceIndex = Random.Range(0, essenceCollectionSpots.Count);
@@ -101,10 +104,10 @@ public class BatEnemy_AI : MonoBehaviour
 
             //Collect essence
             float distanceToEssence = Vector3.Distance(this.transform.position, currentEssenceCollectionSpot.position);
-            if(distanceToEssence <= attackRange){
+            if (distanceToEssence <= attackRange) {
                 secsToNextHarvest -= Time.deltaTime;
-                if(secsToNextHarvest <= 0) {
-                    essenceCount += Random.Range(5,20);
+                if (secsToNextHarvest <= 0f) {
+                    essenceCount += Random.Range(5, 20);
                     secsToNextHarvest = harvestCooldown;
                 }
             }
@@ -124,7 +127,15 @@ public class BatEnemy_AI : MonoBehaviour
         if(distanceToDeliverySpot <= attackRange && essenceCount > 0){
             secsToNextDelivery -= Time.deltaTime;
             if(secsToNextDelivery <= 0) {
-                essenceCount -= Random.Range(10,20);
+                int essenceDeliveryAmount = Random.Range(10, 50);
+                essenceDeliveryAmount = essenceDeliveryAmount >= essenceCount ? essenceDeliveryAmount : essenceCount;
+                essenceStockpileScript.DeliverEssence(essenceDeliveryAmount);
+                essenceCount -= essenceDeliveryAmount;
+                if (essenceCount <= 0) {
+                    state = State.Harvesting;
+                    return;
+                }
+
                 secsToNextDelivery = deliveryCooldown;
             }
         }            
@@ -169,45 +180,28 @@ public class BatEnemy_AI : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float _damage, Spell.SpellType _spellType)
-    {
-        Debug.Log("Enemy took " + _damage.ToString() + " of damage");
-        GameObject collisionParticles;
-        Debug.Log("spell type is " + _spellType);
+    public void TakeDamage(int _damage, Spell.SpellType _spellType)
+    {        
         if(_spellType == Spell.SpellType.Ice)
         {
-            collisionParticles = (GameObject)Resources.Load("IceExplosion");
-            Debug.Log("collisionParticles " + collisionParticles);
-            GameObject go = Instantiate(collisionParticles, collider.transform.position, Quaternion.identity);
-
-            currentHealth -= _damage;
-            enemyHealthbar.value = currentHealth;
-            // freez bat TODO
-           // rigidbody.constraints = RigidbodyConstraints.FreezePosition;
             if (freezTimer > 0)
             {
                 freezTimer -= Time.deltaTime;
             } else {
                rigidbody.constraints = RigidbodyConstraints.FreezeAll;
             }
-            // barColor.color = gradient.Evaluate(enemyHealthbar.normalizedValue);
         }
 
-        if (_spellType == Spell.SpellType.Fire)
-        {   
-            collisionParticles = (GameObject)Resources.Load("FireExplosion");
-            GameObject go = Instantiate(collisionParticles, collider.transform.position, Quaternion.identity);
-           
-            Debug.Log("spell type is Fire");
-            currentHealth -= _damage;
-            enemyHealthbar.value = currentHealth;
-        }
+        currentHealth -= _damage;
+        enemyHealthbar.fillAmount = (float)(currentHealth / maxHealth);
 
+        IsDead();
     }
 
     private void IsDead() {
         if(currentHealth <= 0) {
-            // destroy gameobject
+            Destroy(this.gameObject);
+            //TODO: Spawn smoke
         }
     }
 }

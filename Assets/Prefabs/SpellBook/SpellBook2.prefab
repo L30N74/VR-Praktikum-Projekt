@@ -530,6 +530,26 @@ PrefabInstance:
       propertyPath: m_fontSizeBase
       value: 0.2
       objectReference: {fileID: 0}
+    - target: {fileID: 1528909345, guid: 779a19431d61db14cb733e6466a30a1f, type: 3}
+      propertyPath: m_OnSelectEntered.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1528909345, guid: 779a19431d61db14cb733e6466a30a1f, type: 3}
+      propertyPath: m_OnSelectEntered.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1528909345, guid: 779a19431d61db14cb733e6466a30a1f, type: 3}
+      propertyPath: m_OnSelectEntered.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1848644276, guid: 779a19431d61db14cb733e6466a30a1f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1937
+      objectReference: {fileID: 0}
+    - target: {fileID: 1848644278, guid: 779a19431d61db14cb733e6466a30a1f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2131519522, guid: 779a19431d61db14cb733e6466a30a1f, type: 3}
       propertyPath: m_Name
       value: Right

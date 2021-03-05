@@ -70,7 +70,7 @@ public class MovementProvider : MonoBehaviour
     private bool CheckGrounded()
     {
         Vector3 rayStart = transform.TransformPoint(character.center);
-        float rayLength = character.center.y + 0.05f;
+        float rayLength = character.center.y + 0.03f;
 
         return Physics.SphereCast(rayStart, character.radius, Vector3.down, out RaycastHit hitInfo, groundLayer);
     }

@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!135 &4225795427642299477
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4605819496097310360}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 10
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &7806351333542975720
 AudioSource:
   m_ObjectHideFlags: 0
@@ -404,24 +417,30 @@ PrefabInstance:
     - target: {fileID: 5272520944792367346, guid: 10a7ec2a2783770419a38059c45ea8b3,
         type: 3}
       propertyPath: m_Radius
-      value: 11.559572
+      value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 5272520944792367346, guid: 10a7ec2a2783770419a38059c45ea8b3,
         type: 3}
       propertyPath: m_Center.x
-      value: -0.86237586
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5272520944792367346, guid: 10a7ec2a2783770419a38059c45ea8b3,
         type: 3}
       propertyPath: m_Center.y
-      value: -0.04883607
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5272520944792367346, guid: 10a7ec2a2783770419a38059c45ea8b3,
         type: 3}
       propertyPath: m_IsTrigger
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 5272520944792367346, guid: 10a7ec2a2783770419a38059c45ea8b3,
+        type: 3}
+      propertyPath: m_Center.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 8457652152348157195, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
 --- !u!1 &4605819496097310360 stripped
 GameObject:

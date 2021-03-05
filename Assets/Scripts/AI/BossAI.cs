@@ -2,19 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class BossAI : MonoBehaviour
+public class BossAI : MonoBehaviour, IEnemyAI
 {
     [Header("Necessary References")]
     public Transform body;
     public Transform eye;
     public Transform startingPosition;
-    public Vector3 startingRotation;
-
-    [Space(10)]
-
-
+    public Quaternion startingRotation;
+       
     [Header("Audio sources")]
     public AudioClip normalAttack;
     public AudioClip specialAttack;
@@ -26,7 +24,7 @@ public class BossAI : MonoBehaviour
     private Color eyeColor_normal = new Color(204, 204, 204);
     private Color eyeColor_rage = new Color(207, 20, 20);
 
-    private float eyeFollowSpeed = 2f;
+    private readonly float eyeFollowSpeed = 2f;
 
     private NavMeshAgent agent;
 
@@ -43,23 +41,32 @@ public class BossAI : MonoBehaviour
     private readonly float specialAttackCooldown = 20f;
     private float timeSinceLastSpecialAttack;
 
-    private float attackRange = 1.5f;
+    private readonly float attackRange = 20f;
 
     private readonly int screechDamage = 10;
     private readonly int biteDamage = 10;
     private readonly int laserDamage = 10;
 
-    private float bindDuration = 3f;
+    private readonly float bindDuration = 3f;
+
+    private Transform bindPrefab;
+    public Vector3 bindOffset;
 
 
 
     //** SHIELD AND HEALTH **\\
-    private int currentHealth;
-    private readonly int maxHealth;
+    public int currentHealth;
+    public int maxHealth;
     private float shieldAmount;
-    private float maxShieldAmount = 300f;
-    private float shieldStockpile = 0;      // Mana brought in from minions. IDEA: Mana builds in crystals from which the boss can drain mid-fight when own sield is low
-    private List<GameObject> manaStockpiles;
+    private readonly float maxShieldAmount = 300f;
+
+    private float shieldRefillCooldown = 5f;
+    private float timeSinceLastRefill = 5f;
+
+    private EssenceStockpile essenceStockpileScript;
+
+    private Image enemyShieldBar;
+    private Image enemyHealthBar;
 
     //** AGGREVATION **\\
     private bool isAggro = false;
@@ -67,7 +74,7 @@ public class BossAI : MonoBehaviour
     private readonly float aggroTimeout = 30f;
     private float secondsUntilDeAggro = 0f;
 
-    private bool secondPhaseEntered = false;
+    private readonly bool secondPhaseEntered = false;
 
     #endregion
 
@@ -78,14 +85,21 @@ public class BossAI : MonoBehaviour
         meshRenderer_eye = eye.GetComponent<MeshRenderer>();
         meshRenderer_body = body.GetComponent<MeshRenderer>();
         agent = GetComponent<NavMeshAgent>();
-        startingRotation = transform.rotation.eulerAngles;
+        startingRotation = transform.rotation;
 
+        currentHealth = maxHealth;
         shieldAmount = maxShieldAmount;
-        manaStockpiles = new List<GameObject>();
         audioSource = transform.GetChild(0).GetComponent<AudioSource>();
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
         playerStatsScript = player.GetComponent<PlayerStats>();
+
+        enemyHealthBar = GetComponentsInChildren<Image>()[1];
+        enemyShieldBar = GetComponentsInChildren<Image>()[3];
+
+        essenceStockpileScript = GameObject.FindWithTag("EssenceDelivery").GetComponent<EssenceStockpile>();
+
+        bindPrefab = ((GameObject)Resources.Load("Tendrils")).transform;
     }
 
     // Update is called once per frame
@@ -93,14 +107,14 @@ public class BossAI : MonoBehaviour
     {
         // Aggro timeout
         if(playerLeftZone) {
-            secondsUntilDeAggro -= Time.deltaTime;
-            if (secondsUntilDeAggro <= 0) {
+            secondsUntilDeAggro += Time.deltaTime;
+            if (secondsUntilDeAggro >= aggroTimeout) {
                 // Player left area for an extended period of time. 
                 // De-Aggro and return to start
-                secondsUntilDeAggro = aggroTimeout;
+                secondsUntilDeAggro = 0f;
                 isAggro = false;
                 meshRenderer_eye.material.color = eyeColor_normal;
-                agent.destination = startingPosition.position;
+                transform.rotation = Quaternion.Lerp(transform.rotation, startingRotation, 3f);
             }
         }
 
@@ -109,7 +123,13 @@ public class BossAI : MonoBehaviour
 
         RotateTowardsTarget();
 
-        //HandleAttack();
+        HandleAttack();
+
+
+        timeSinceLastRefill += Time.deltaTime;
+        // Refill Shield
+        if (shieldAmount < maxShieldAmount/3f)
+            RefillShield();
 
         /*if(!secondPhaseEntered)
             if(currentHealth < maxHealth / 2 && shieldAmount < maxShieldAmount / 3 && GetManaReservoirsAmount() == 0) {
@@ -121,6 +141,15 @@ public class BossAI : MonoBehaviour
                         // Determine spawn position
                         // Spawn minion
             }*/
+    }
+
+    private void RefillShield()
+    {
+        if (timeSinceLastRefill >= shieldRefillCooldown) {
+            shieldAmount += essenceStockpileScript.RetrieveEssence(150);
+            enemyShieldBar.fillAmount = (float)(shieldAmount / maxShieldAmount);
+            timeSinceLastRefill = 0f;
+        }
     }
 
     private void RotateTowardsTarget()
@@ -147,7 +176,9 @@ public class BossAI : MonoBehaviour
         timeSinceLastSpecialAttack += Time.deltaTime;
         timeSinceLastNormalAttack += Time.deltaTime;
 
-        if (attackTypeDecisionValue <= specialAttackThreshold || 
+        ExecuteBind();
+        isAggro = false;
+        /*if (attackTypeDecisionValue <= specialAttackThreshold || 
             (attackTypeDecisionValue <= specialAttackThreshold && timeSinceLastSpecialAttack < specialAttackCooldown)) {
             if (timeSinceLastNormalAttack < normalAttackCooldown)
                 return;
@@ -174,7 +205,7 @@ public class BossAI : MonoBehaviour
                 ExecuteBind();
             }
             timeSinceLastSpecialAttack = 0f;
-        }
+        }*/
     }
 
     //** ATTACKS **\\
@@ -210,31 +241,47 @@ public class BossAI : MonoBehaviour
 
     private void ExecuteBind()
     {
-        // TODO: Special effect to signify this state to the player i.e. vines/tendrils around him
+        Quaternion spawnRotation = new Quaternion(180, 0, 0, 1);
+        Camera cam = Camera.main;
+        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
+        Destroy((Instantiate(bindPrefab, spawnPosition, spawnRotation)).gameObject, bindDuration);
         playerStatsScript.RestrictMovement(bindDuration);
     }
 
-    private int GetManaReservoirsAmount()
+    public void TakeDamage(int _damage, Spell.SpellType _spellType)
     {
-        // TODO: Implement if we implement reservoirs
-        return 0;
+        if (shieldAmount > 0) {
+            shieldAmount -= _damage;
+            enemyShieldBar.fillAmount = (float)(shieldAmount / maxShieldAmount);
+        }
+        else {
+            currentHealth -= _damage;
+            enemyHealthBar.fillAmount = (float)(currentHealth / maxHealth);
+            Debug.Log("Fill: " + enemyHealthBar.fillAmount);
+        }
+
+        IsDead();
+    }
+
+    private void IsDead()
+    {
+        if (currentHealth <= 0) {
+            Destroy(this.gameObject);
+            //TODO: Spawn smoke
+        }
     }
 
     #region Aggro Handling with Triggers
-    private void OnTriggerEnter(Collider other)
+    
+    public void ZoneTriggerEnter()
     {
-        if(other.tag == "Player") {
-            isAggro = true;
-            playerLeftZone = false;
-            meshRenderer_eye.material.color = eyeColor_rage;
-        }
+        isAggro = true;
+        playerLeftZone = false;
+        meshRenderer_eye.material.color = eyeColor_rage;
     }
-
-    private void OnTriggerExit(Collider other)
+    public void ZoneTriggerExit()
     {
-        if (other.tag == "Player") {
-            playerLeftZone = true;
-        }
+        playerLeftZone = true;
     }
     #endregion
 }
