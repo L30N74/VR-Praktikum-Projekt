@@ -15,6 +15,8 @@ public class GestureRecognizer : MonoBehaviour
 
     public Transform movementSource;    // The crystal
 
+    public TrailRenderer trailRenderer;
+
     public GameObject debugInstantiatePrefab;
 
     public TextMeshProUGUI debugText;
@@ -92,6 +94,7 @@ public class GestureRecognizer : MonoBehaviour
     private void StartMovement()
     {
         debugText.text = "Started a gesture";
+        trailRenderer.emitting = true;
 
         timeSinceLastGesture = 0f;
         positionList.Add(new List<Vector3>());
@@ -121,6 +124,7 @@ public class GestureRecognizer : MonoBehaviour
     {
         debugText.text += "\nEnded a gesture";
         isMoving = false;
+        trailRenderer.emitting = false;
     }
 
     private void DetermineGesture()

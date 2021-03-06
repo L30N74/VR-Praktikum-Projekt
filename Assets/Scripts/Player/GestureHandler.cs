@@ -6,80 +6,33 @@ using TMPro;
 
 public class GestureHandler : MonoBehaviour
 {
-    public GameObject boulderPrefab;
-    public float boulderYOffset;
-    public float maxBoulderDistance;
-    public float boulderMovementThreshold = 0.1f;
-    public float boulderMovementForce = 100;
-    private bool boulderControll = false;
-    private GameObject boulder = null;
-    private Vector3 controllOrigin;
-
-
-    public int waterBubble_effectDuration;
-    public int waterBubble_effectValue;
+    public int healEffectDuration;
+    public int healEffectValue;
     public float healEffectInterval;
 
     private IEnumerator waterBubbleRoutine;
+    private Transform player;
     private PlayerStats playerStatsScript;
 
-    // For fire and ice spell
+    // For spells
     public GameObject fireSpellPrefab;
     public GameObject iceSpellPrefab;
+    public GameObject healSpellPrefab;
+    private GameObject healEffectParticles;
     public float throwForce;
     public Transform spawnPoint;
 
     private Camera mainCamera;
-    private InputDevice usedcontroller_device;
-    private InputDevice leftController_device;
-    private InputDevice rightController_device;
-    public Transform left_controller;
-    public Transform right_controller;
-    private Transform usedController_Transform;
 
     public TextMeshProUGUI debugText;
 	
-	private Rigidbody boulderRigidbody;
-
     public SpellBook spellbookScript;
 
     public void Start()
     {
         mainCamera = Camera.main;
-        playerStatsScript = GameObject.Find("Player").GetComponent<PlayerStats>();
-
-        leftController_device = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-        rightController_device = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-
-        if (!left_controller)
-            left_controller = GameObject.Find("RightHand Controller").transform;
-        if (!right_controller)
-            right_controller = GameObject.Find("LeftHand Controller").transform;
-    }
-
-    public void Update()
-    {
-        if (boulder != null) {
-            if (!boulderControll) {
-                boulderControll = true;
-                controllOrigin = usedController_Transform.position;
-                debugText.text = "Now controlling.";
-				boulderRigidbody = boulder.GetComponent<Rigidbody>();
-            }
-            else {
-                //Let the boulder follow the user's hand-movement
-                usedcontroller_device.TryGetFeatureValue(CommonUsages.grip, out float grip);
-                if (grip > 0.6f) {
-                    HandleBoulderMovement();
-                }
-                else { // Let the boulder fall upon releasing the grip-button 
-                    boulderRigidbody.isKinematic = false;
-                    boulderControll = false;
-                    boulder = null;
-					boulderRigidbody = null;
-                }
-            }
-        }
+        player = GameObject.Find("Player").transform;
+        playerStatsScript = player.GetComponent<PlayerStats>();
     }
 
     public void ExecuteSpellByName(string spellName)
@@ -88,17 +41,15 @@ public class GestureHandler : MonoBehaviour
         {
             case "fire":
                 debugText.text = "Used fire spell";
-                FireSpell("left");
+                FireSpell();
                 break;
             case "ice":
                 debugText.text = "Used ice spell";
-                IceSpell("left");
-                break;
-            case "test":
-                debugText.text = "Used combination spell";
+                IceSpell();
                 break;
             case "heal":
-                WaterBubble();
+                debugText.text = "Used healing spell";
+                Heal();
                 break;
             case "swipe left":
             case "swipe right":
@@ -108,97 +59,24 @@ public class GestureHandler : MonoBehaviour
         }
     }
 
-
-    private void HandleBoulderMovement()
-    {
-        // Follow head-Rotation
-        float angle = 0f;
-        boulder.transform.Rotate(0, angle, 0, Space.Self);
-
-        // Get current hand position
-        Vector3 newHandPosition = usedController_Transform.position;
-
-        Vector3 vector = controllOrigin - newHandPosition;
-
-		// Calculate differences between the hand's old position and the updated one
-        float xDifference = newHandPosition.x - controllOrigin.x;
-        float yDifference = newHandPosition.y - controllOrigin.y;
-        float zDifference = newHandPosition.z - controllOrigin.z;
-        debugText.text = xDifference.ToString("#.000") + "\n" + yDifference.ToString("#.000") + "\n" + zDifference.ToString("#.000");
-	
-		Vector3 boulderMoveDirection = Vector3.zero;
-
-
-		Vector3 boulderPos = boulder.transform.position;
-		// Check if the differences in position are big enough to justify movement		
-		boulderMoveDirection.x = Mathf.Abs(xDifference) > boulderMovementThreshold ? boulderPos.x + xDifference : 0f;
-		boulderMoveDirection.y = Mathf.Abs(yDifference) > boulderMovementThreshold ? boulderPos.y + yDifference : 0f;
-		boulderMoveDirection.z = Mathf.Abs(zDifference) > boulderMovementThreshold ? boulderPos.z + zDifference : 0f;
-        
-		
-		// Move the boulder
-		if(boulderMoveDirection != Vector3.zero)
-			boulder.transform.Translate(boulderMoveDirection * boulderMovementForce * Time.deltaTime, Space.Self);
-		    //boulderRigidbody.MovePosition(boulderMoveDirection * boulderMovementForce * Time.fixedDeltaTime);
-		
-		// For testing purposes: Display the vector on the world-space text
-		debugText.text += "\n-----------\n" + boulderMoveDirection.ToString();
-    }
-
-
-    /// <summary>
-    /// Instantiate a giant boulder at a target location
-    /// Target location is either directly where the player is looking at (plus some y-offset) or
-    /// an arbitrary point in the distance in the direction the player is looking (plus some y-offset)
-    ///
-    /// The boulder is controlled by the player's hand movement in update
-    /// </summary>
-    /// <param name="initializedHand">String representing hand with which to controll the boulder</param>
-    public void RockFall(string handUsed) {
-        if (boulder) return;
-
-        switch (handUsed) {
-            case "left":
-                usedcontroller_device = leftController_device;
-                usedController_Transform = left_controller;
-                break;
-            case "right":
-            default:
-                usedcontroller_device = rightController_device;
-                usedController_Transform = right_controller;
-                break;
-        }
-
-
-        // See what the player is looking at
-        if(Physics.Raycast(mainCamera.transform.position, mainCamera.transform.forward, out RaycastHit hit, maxBoulderDistance)) {
-            Vector3 spawnPosition = new Vector3(hit.point.x, hit.point.y + boulderYOffset, hit.point.z);
-
-            // Instantiate the rock
-            boulder = Instantiate(boulderPrefab, spawnPosition, mainCamera.transform.rotation);
-        }
-        else {
-            // Raycast didnt hit anything.
-            // The player is either not looking at something or maxdistance is reached
-            // Spawn boulder at max distance
-            Vector3 spawnPosition = mainCamera.transform.position + mainCamera.transform.forward * maxBoulderDistance;
-            spawnPosition.y += boulderYOffset;
-
-            boulder = Instantiate(boulderPrefab, spawnPosition, Quaternion.identity);
-        }
-    }
-
     /// <summary>
     /// Creates a healing-effect for the player that, 
     /// for a set time, periodically heals him
     /// </summary>
-    public void WaterBubble() {
-        //Stop the effect in case it's already active so it doesn't stack
+    public void Heal() {
+        // Stop the effect in case it's already active so it doesn't stack
         if (waterBubbleRoutine != null) {
             StopCoroutine(waterBubbleRoutine);
         }
 
-        //TODO: Spawn particle system
+        // Get player position
+        Vector3 spawnPosition = new Vector3(mainCamera.transform.position.x, player.position.y, mainCamera.transform.position.z);
+        if (healEffectParticles) Destroy(healEffectParticles);
+
+        // Spawn particle system
+        healEffectParticles = Instantiate(healSpellPrefab, spawnPosition, Quaternion.identity);
+        healEffectParticles.transform.SetParent(player);
+        Destroy(healEffectParticles, healEffectDuration);
 
         waterBubbleRoutine = HealBubbleRoutine();
         StartCoroutine(waterBubbleRoutine);
@@ -213,10 +91,10 @@ public class GestureHandler : MonoBehaviour
         float startTime = Time.time;
 
         while(true) {
-            playerStatsScript.AlterHealth(waterBubble_effectValue, DamageType.Healing);
+            playerStatsScript.AlterHealth(healEffectValue, DamageType.Healing);
 
             // Break after the effect's duration has elapsed
-            if (Time.time - startTime > waterBubble_effectDuration) {
+            if (Time.time - startTime > healEffectDuration) {
                 waterBubbleRoutine = null;
                 break;
             }
@@ -225,38 +103,12 @@ public class GestureHandler : MonoBehaviour
         }
     }
 
-    public void FireSpell(string handUsed) {
-
-        /*switch (handUsed) {
-            case "left":
-                usedcontroller_device = leftController_device;
-                usedController_Transform = left_controller;
-                break;
-            case "right":
-            default:
-                usedcontroller_device = rightController_device;
-                usedController_Transform = right_controller;
-                break;
-        }*/
-
+    public void FireSpell() {
         GameObject spellGo = Instantiate(fireSpellPrefab, spawnPoint.position, Quaternion.identity);
         spellGo.GetComponent<Rigidbody>().AddForce(spawnPoint.forward * throwForce, ForceMode.Impulse);
     }
 
-    public void IceSpell(string handUsed) {
-
-        /*switch (handUsed) {
-            case "left":
-                usedcontroller_device = leftController_device;
-                usedController_Transform = left_controller;
-                break;
-            case "right":
-            default:
-                usedcontroller_device = rightController_device;
-                usedController_Transform = right_controller;
-                break;
-        }*/
-
+    public void IceSpell() {
         GameObject spellGo = Instantiate(iceSpellPrefab, spawnPoint.position, Quaternion.identity);
         spellGo.GetComponent<Rigidbody>().AddForce(spawnPoint.forward * throwForce, ForceMode.Impulse);
     }

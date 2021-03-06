@@ -4,11 +4,16 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class BatEnemy_AI : MonoBehaviour, IEnemyAI
 {
     public Image enemyHealthbar;
-    public Image barColor;
     public GameObject ice;
+
+    [Header("Audio")]
+    public AudioClip deathSound;
+    public AudioClip attackSound;
+    private AudioSource audioSource;
 
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
@@ -16,14 +21,15 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
     private new Rigidbody rigidbody;
     private new Collider collider;
 
-    private int currentHealth;
-    private int maxHealth = 100; 
+    [SerializeField] private int currentHealth;
+    [SerializeField] private int maxHealth = 100; 
     [SerializeField] private int essenceCount;
     private float essenceMaximum = 100;
     private float essenceCollectionCooldown = 0.5f;
     private float essenceDeliveryCooldown = 1f;
 
-    private float attackDamage = 3;
+    private int attackDamage = 3;
+    private float harvestRange = 10f;
     [SerializeField] private float attackRange = 2.5f;
     private float attackCooldown = 1.5f;
     private float secsToNextAttack = 0.0f;
@@ -32,13 +38,18 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
     private float deliveryCooldown = 1.5f;
     public float secsToNextHarvest = 0.0f;
     private float harvestCooldown = 1.5f;
-    private float freezTimer = 3;
+
+    private float frozenTimeRemain = 0f;
+    private float freezeTimer = 3f;
+    private bool isFrozen = false;
 
     NavMeshAgent agent;
     GameObject attackTarget;
     private Transform navmeshTarget;
 
     private EssenceStockpile essenceStockpileScript;
+
+    private PlayerStats playerStats;
 
     [SerializeField] private List<Transform> essenceCollectionSpots;
     [SerializeField] private Transform currentEssenceCollectionSpot;
@@ -56,6 +67,8 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
         attackTarget = null;
         agent.speed = roamingSpeed;
 
+        audioSource = GetComponent<AudioSource>();
+
         // Add all essenceCollectionSpots
         System.Array.ForEach<GameObject>(
             GameObject.FindGameObjectsWithTag("EssenceCollector"), 
@@ -65,19 +78,23 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
         // Find and add the essenceDeliverySpot
         essenceDeliverySpot = GameObject.FindGameObjectWithTag("EssenceDelivery").transform;
         essenceStockpileScript = essenceDeliverySpot.GetComponent<EssenceStockpile>();
+        playerStats = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerStats>();
 
         // Make sure these spots really are set
         if(essenceDeliverySpot == null) 
             Debug.LogError("No GameObject with the tag \"EssenceDelivery\" in the scene. Make sure there is one.");
-
-
+        
         if(essenceCollectionSpots.Count == 0) 
             Debug.LogError("No GameObjects with the tag \"EssenceCollector\" in the scene. Make sure there is at least one.");
     }
 
     void Update() 
     {
-        switch(state) {
+        secsToNextAttack -= Time.deltaTime;
+        secsToNextHarvest -= Time.deltaTime;
+        secsToNextDelivery -= Time.deltaTime;
+
+        switch (state) {
             case State.Harvesting:
                 HandleHarvesting();
             break;
@@ -87,6 +104,15 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
             case State.Aggro:
                 HandleAggro();
             break;
+        }
+
+        if (isFrozen) {
+            frozenTimeRemain -= Time.deltaTime;
+
+            if (frozenTimeRemain <= 0f) {
+                agent.isStopped = false;
+                isFrozen = false;
+            }
         }
     }
 
@@ -104,8 +130,7 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
 
             //Collect essence
             float distanceToEssence = Vector3.Distance(this.transform.position, currentEssenceCollectionSpot.position);
-            if (distanceToEssence <= attackRange) {
-                secsToNextHarvest -= Time.deltaTime;
+            if (distanceToEssence <= harvestRange) {
                 if (secsToNextHarvest <= 0f) {
                     essenceCount += Random.Range(5, 20);
                     secsToNextHarvest = harvestCooldown;
@@ -124,8 +149,7 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
     private void HandleDelivering() {
         agent.speed = roamingSpeed;
         float distanceToDeliverySpot = Vector3.Distance(this.transform.position, essenceDeliverySpot.position);
-        if(distanceToDeliverySpot <= attackRange && essenceCount > 0){
-            secsToNextDelivery -= Time.deltaTime;
+        if(distanceToDeliverySpot <= harvestRange && essenceCount > 0){
             if(secsToNextDelivery <= 0) {
                 int essenceDeliveryAmount = Random.Range(10, 50);
                 essenceDeliveryAmount = essenceDeliveryAmount >= essenceCount ? essenceDeliveryAmount : essenceCount;
@@ -149,11 +173,14 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
         //if near enough -> attack
         float distanceToPlayer = Vector3.Distance(this.transform.position, attackTarget.transform.position);
         if(distanceToPlayer <= attackRange){
-            //Attack
-            //TODO: Implement cooldown
-            secsToNextAttack -= Time.deltaTime;
-            if(secsToNextAttack <= 0) {
-                Debug.Log(this.gameObject.name + ": Attacked " + attackTarget.name);
+            // Rotate towards player
+            Vector3 direction = attackTarget.transform.position - transform.position;
+            Quaternion rotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, 3 * Time.deltaTime);
+
+            // Attack
+            if (secsToNextAttack <= 0) {
+                playerStats.AlterHealth(attackDamage, DamageType.Damage);
                 secsToNextAttack = attackCooldown;
             }
         }
@@ -168,7 +195,11 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
             // Set player as new navigation target and move towards him
             navmeshTarget = other.transform;
             attackTarget = other.gameObject;
-            agent.SetDestination(navmeshTarget.position);
+            float randomX = Random.Range(other.transform.position.x - attackRange, other.transform.position.x + attackRange);
+            float randomZ = Random.Range(other.transform.position.z - attackRange, other.transform.position.z + attackRange);
+            Vector3 position = new Vector3(randomX, other.transform.position.y, randomZ);
+
+            agent.SetDestination(position);
             agent.speed = chaseSpeed;
         }
     }
@@ -184,22 +215,22 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
     {        
         if(_spellType == Spell.SpellType.Ice)
         {
-            if (freezTimer > 0)
-            {
-                freezTimer -= Time.deltaTime;
-            } else {
-               rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+            if (!isFrozen) {
+                isFrozen = true;
+                frozenTimeRemain = freezeTimer;
+                agent.isStopped = true;
             }
         }
 
         currentHealth -= _damage;
-        enemyHealthbar.fillAmount = (float)(currentHealth / maxHealth);
+        enemyHealthbar.fillAmount = (float)currentHealth / (float)maxHealth;
 
         IsDead();
     }
 
     private void IsDead() {
         if(currentHealth <= 0) {
+            audioSource.PlayOneShot(deathSound);
             Destroy(this.gameObject);
             //TODO: Spawn smoke
         }

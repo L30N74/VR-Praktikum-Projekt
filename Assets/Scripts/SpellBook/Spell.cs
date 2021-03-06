@@ -24,12 +24,17 @@ public class Spell : MonoBehaviour {
     public enum SpellType { Ice, Fire};
     public SpellType spellType;
 
+    private List<GameObject> spellParticles = new List<GameObject>();
+
     private void Start()
     {
         myBody = GetComponent<Rigidbody>();
         myCollider = GetComponent<Collider>();
         spellParticle = GetComponent<ParticleSystem>();
         spellParticleChildren = GetComponentsInChildren<ParticleSystem>();
+
+        spellParticles.Add((GameObject)Resources.Load("IceExplosion"));
+        spellParticles.Add((GameObject)Resources.Load("FireExplosion"));
     }
 
     private void Update()
@@ -52,15 +57,6 @@ public class Spell : MonoBehaviour {
         }
     }
 
-    /*private void OnParticleCollision(GameObject other)
-    {
-        if (other.gameObject.tag == "Enemy" || other.gameObject.tag == "Ground")
-        {
-            HideStuff();
-            DoDamage();
-        }
-    }*/
-
     private void HideStuff()
     {
         // myBody.constraints = RigidbodyConstraints.FreezeAll;
@@ -69,16 +65,13 @@ public class Spell : MonoBehaviour {
 
     private void SpawnParticles(Collider collider)
     {
-        GameObject collisionParticles;
         switch(spellType) 
         {
             case SpellType.Fire:
-                collisionParticles = (GameObject)Resources.Load("IceExplosion");
-                Instantiate(collisionParticles, collider.transform.position, Quaternion.identity);
+                Instantiate(spellParticles[0], collider.transform.position, Quaternion.identity);
                 break;
             case SpellType.Ice:
-                collisionParticles = (GameObject)Resources.Load("FireExplosion");
-                Instantiate(collisionParticles, collider.transform.position, Quaternion.identity);
+                Instantiate(spellParticles[1], collider.transform.position, Quaternion.identity);
                 break;
         }
     }

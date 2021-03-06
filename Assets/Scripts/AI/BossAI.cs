@@ -1,45 +1,69 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(NavMeshAgent))]
-public class BossAI : MonoBehaviour, IEnemyAI
+[RequireComponent(typeof(Animator))]
+public class BossAI : MonoBehaviour, IEnemyAI 
 {
+    #region Variables
+    
+    //** SHIELD AND HEALTH **\\
+    [Header("Shield and Health")]
+    [SerializeField] private int currentHealth;
+    [SerializeField] private int maxHealth;
+    [SerializeField] private float shieldAmount;
+    [SerializeField] private readonly float maxShieldAmount = 300f;
+
+    private float shieldRefillCooldown = 5f;
+    private float timeSinceLastRefill = 5f;
+
+    private EssenceStockpile essenceStockpileScript;
+
+    [SerializeField] private Image enemyShieldBar;
+    [SerializeField] private Image enemyHealthBar;
+
+    //** AGGREVATION **\\
+    [SerializeField] private bool isAggro = false;
+    private bool playerLeftZone = true;
+    private readonly float aggroTimeout = 30f;
+    private float secondsUntilDeAggro = 0f;
+
+    private readonly bool secondPhaseEntered = false;
+
     [Header("Necessary References")]
     public Transform body;
     public Transform eye;
-    public Transform startingPosition;
     public Quaternion startingRotation;
        
     [Header("Audio sources")]
-    public AudioClip normalAttack;
-    public AudioClip specialAttack;
+    public AudioClip biteSound;
+    public AudioClip screechSound;
+    public AudioClip tendrilSound;
+    public AudioClip laserSound;
+    public AudioClip victorySound;
 
     private AudioSource audioSource;
     private MeshRenderer meshRenderer_eye;
     private MeshRenderer meshRenderer_body;
+
+    [SerializeField] private Animator animator;
 
     private Color eyeColor_normal = new Color(204, 204, 204);
     private Color eyeColor_rage = new Color(207, 20, 20);
 
     private readonly float eyeFollowSpeed = 2f;
 
-    private NavMeshAgent agent;
-
     //** AI **\\
     private Transform player;
     private PlayerStats playerStatsScript;
 
 
-    #region Variables
     //** ATTACKS **\\
     private readonly int specialAttackThreshold = 80;    // If a random number is above this threshold, a special attack will be executed (when possible by cooldown)
     private readonly float normalAttackCooldown = 3f;
     private float timeSinceLastNormalAttack;
-    private readonly float specialAttackCooldown = 20f;
-    private float timeSinceLastSpecialAttack;
+    [SerializeField] private readonly float specialAttackCooldown = 20f;
+    [SerializeField] private float timeSinceLastSpecialAttack;
 
     private readonly float attackRange = 20f;
 
@@ -47,37 +71,14 @@ public class BossAI : MonoBehaviour, IEnemyAI
     private readonly int biteDamage = 10;
     private readonly int laserDamage = 10;
 
+    private readonly float meleeRange = 5f;
+
     private readonly float bindDuration = 3f;
 
     private Transform bindPrefab;
-    public Vector3 bindOffset;
     private Transform screechPrefab; 
     private Transform bitePrefab;
     private Transform laserPrefab;
-
-
-
-    //** SHIELD AND HEALTH **\\
-    public int currentHealth;
-    public int maxHealth;
-    private float shieldAmount;
-    private readonly float maxShieldAmount = 300f;
-
-    private float shieldRefillCooldown = 5f;
-    private float timeSinceLastRefill = 5f;
-
-    private EssenceStockpile essenceStockpileScript;
-
-    private Image enemyShieldBar;
-    private Image enemyHealthBar;
-
-    //** AGGREVATION **\\
-    private bool isAggro = false;
-    private bool playerLeftZone = false;
-    private readonly float aggroTimeout = 30f;
-    private float secondsUntilDeAggro = 0f;
-
-    private readonly bool secondPhaseEntered = false;
 
     #endregion
 
@@ -87,7 +88,6 @@ public class BossAI : MonoBehaviour, IEnemyAI
     {
         meshRenderer_eye = eye.GetComponent<MeshRenderer>();
         meshRenderer_body = body.GetComponent<MeshRenderer>();
-        agent = GetComponent<NavMeshAgent>();
         startingRotation = transform.rotation;
 
         currentHealth = maxHealth;
@@ -97,22 +97,32 @@ public class BossAI : MonoBehaviour, IEnemyAI
         player = GameObject.FindGameObjectWithTag("Player").transform;
         playerStatsScript = player.GetComponent<PlayerStats>();
 
-        enemyHealthBar = GetComponentsInChildren<Image>()[1];
-        enemyShieldBar = GetComponentsInChildren<Image>()[3];
+        if(!enemyHealthBar)
+            enemyHealthBar = GetComponentsInChildren<Image>()[1];
+        if(!enemyShieldBar)
+            enemyShieldBar = GetComponentsInChildren<Image>()[3];
 
-        essenceStockpileScript = GameObject.FindWithTag("EssenceDelivery").GetComponent<EssenceStockpile>();
+        GameObject platform = GameObject.FindWithTag("EssenceDelivery");
+        essenceStockpileScript = platform.GetComponent<EssenceStockpile>();
 
         bindPrefab = ((GameObject)Resources.Load("Tendrils")).transform;
         screechPrefab = ((GameObject)Resources.Load("Cry")).transform;
         bitePrefab = ((GameObject)Resources.Load("Bite")).transform;
         laserPrefab = ((GameObject)Resources.Load("Laser")).transform;
+
+        if(!animator)
+            animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetMouseButtonDown(0)) {
+            TakeDamage(50, Spell.SpellType.Fire);
+        }
+
         // Aggro timeout
-        if(playerLeftZone) {
+        if(playerLeftZone && isAggro) {
             secondsUntilDeAggro += Time.deltaTime;
             if (secondsUntilDeAggro >= aggroTimeout) {
                 // Player left area for an extended period of time. 
@@ -131,11 +141,8 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
         HandleAttack();
 
-
-        timeSinceLastRefill += Time.deltaTime;
         // Refill Shield
-        if (shieldAmount < maxShieldAmount/3f)
-            RefillShield();
+        RefillShield();
 
         /*if(!secondPhaseEntered)
             if(currentHealth < maxHealth / 2 && shieldAmount < maxShieldAmount / 3 && GetManaReservoirsAmount() == 0) {
@@ -151,18 +158,19 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
     private void RefillShield()
     {
-        if (timeSinceLastRefill >= shieldRefillCooldown) {
-            shieldAmount += essenceStockpileScript.RetrieveEssence(150);
-            enemyShieldBar.fillAmount = (float)(shieldAmount / maxShieldAmount);
-            timeSinceLastRefill = 0f;
+        timeSinceLastRefill += Time.deltaTime;
+        if (shieldAmount < maxShieldAmount / 3f) {
+            if (timeSinceLastRefill >= shieldRefillCooldown) {
+                shieldAmount += essenceStockpileScript.RetrieveEssence(150);
+                enemyShieldBar.fillAmount = (float)(shieldAmount / maxShieldAmount);
+                timeSinceLastRefill = 0f;
+            }
         }
     }
 
     private void RotateTowardsTarget()
     {
         Vector3 direction = player.position - body.position;
-        //Quaternion rotation = direction; //Quaternion.LookRotation(direction, Vector3.up);
-
         Quaternion rotation = Quaternion.LookRotation(direction);
 
         transform.rotation = Quaternion.Lerp(transform.rotation, rotation, eyeFollowSpeed * Time.deltaTime);
@@ -173,26 +181,26 @@ public class BossAI : MonoBehaviour, IEnemyAI
     /// </summary>
     private void HandleAttack()
     {
-        // Normal Attacks: Screech, Bite
-        // Special Attacks: Eye Laser, Bind
-
         int attackTypeDecisionValue = Random.Range(1, 101);
-        int attackVariantValue = Random.Range(1,101);
 
         timeSinceLastSpecialAttack += Time.deltaTime;
         timeSinceLastNormalAttack += Time.deltaTime;
 
-        ExecuteBind();
-        isAggro = false;
-        /*if (attackTypeDecisionValue <= specialAttackThreshold || 
+        if (attackTypeDecisionValue <= specialAttackThreshold || 
             (attackTypeDecisionValue <= specialAttackThreshold && timeSinceLastSpecialAttack < specialAttackCooldown)) {
             if (timeSinceLastNormalAttack < normalAttackCooldown)
                 return;
 
+            int attackVariantValue = Random.Range(1, 101);
             // Determine which normal attack should be executed
-            if(attackVariantValue <= 50) {
+            if (attackVariantValue <= 50) {
+                float dist = Vector3.Distance(body.position, player.position);
+
                 // Bite the player
-                ExecuteBite();
+                if (dist < meleeRange)
+                    ExecuteBite();
+                else
+                    ExecuteScreech();
             }
             else {
                 // Screech at the player
@@ -200,7 +208,11 @@ public class BossAI : MonoBehaviour, IEnemyAI
             }
             timeSinceLastNormalAttack = 0f;
         }
-        else {                
+        else {
+            if (timeSinceLastSpecialAttack < specialAttackCooldown)
+                return;
+
+            int attackVariantValue = Random.Range(1, 101);
             // Determine which special attack should be executed
             if (attackVariantValue <= 50) {
                 // Bite the player
@@ -211,16 +223,19 @@ public class BossAI : MonoBehaviour, IEnemyAI
                 ExecuteBind();
             }
             timeSinceLastSpecialAttack = 0f;
-        }*/
+        }
     }
 
     //** ATTACKS **\\
     private void ExecuteScreech()
-    {   
+    {
+        Debug.Log("Sreech attack");
+
         Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
         Camera cam = Camera.main;
         Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         // Play audio source
+        audioSource.PlayOneShot(screechSound);
 
         // Play special effect and animation
         Instantiate(screechPrefab, spawnPosition, spawnRotation);
@@ -230,14 +245,16 @@ public class BossAI : MonoBehaviour, IEnemyAI
     }
 
     private void ExecuteBite()
-    {   
+    {
+        Debug.Log("Bite attack");
         Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
         Camera cam = Camera.main;
         Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         // Play audio source
+        audioSource.PlayOneShot(biteSound);
 
         // Play animation
-        Instantiate(bitePrefab, spawnPosition, spawnRotation);
+        Destroy(Instantiate(bitePrefab, spawnPosition, spawnRotation), 1);
 
         // Deal damage
         playerStatsScript.AlterHealth(biteDamage, DamageType.Damage);
@@ -245,36 +262,51 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
     private void ExecuteLaser()
     {
-        Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
+        Debug.Log("Laser attack");
         Camera cam = Camera.main;
-        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
+        Vector3 spawnPosition = eye.transform.position; 
+
         // Play audio source
+        audioSource.PlayOneShot(laserSound);
 
         // Play animation
-        Instantiate(laserPrefab, spawnPosition, spawnRotation);
+        Transform laserObject = Instantiate(laserPrefab, spawnPosition, Quaternion.identity);
+        Destroy(laserObject, 3f);
+
+        Vector3 forceVector = eye.position - new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
+        laserObject.GetComponent<Rigidbody>().AddForce(forceVector, ForceMode.Impulse);
+
         // Deal damage
         playerStatsScript.AlterHealth(laserDamage, DamageType.Damage);
     }
 
     private void ExecuteBind()
     {
+        Debug.Log("Bind attack");
+        // Play audio
+        audioSource.PlayOneShot(tendrilSound);
+        
+        // Spawn tendrils
         Quaternion spawnRotation = new Quaternion(180, 0, 0, 1);
         Camera cam = Camera.main;
         Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         Destroy((Instantiate(bindPrefab, spawnPosition, spawnRotation)).gameObject, bindDuration);
+
+        // Bind the player
         playerStatsScript.RestrictMovement(bindDuration);
     }
 
     public void TakeDamage(int _damage, Spell.SpellType _spellType)
     {
+        //if (playerLeftZone) return; // No cheese in my house!
+
         if (shieldAmount > 0) {
             shieldAmount -= _damage;
             enemyShieldBar.fillAmount = (float)(shieldAmount / maxShieldAmount);
         }
         else {
             currentHealth -= _damage;
-            enemyHealthBar.fillAmount = (float)(currentHealth / maxHealth);
-            Debug.Log("Fill: " + enemyHealthBar.fillAmount);
+            enemyHealthBar.fillAmount = (float)currentHealth / (float)maxHealth;
         }
 
         IsDead();
@@ -283,8 +315,11 @@ public class BossAI : MonoBehaviour, IEnemyAI
     private void IsDead()
     {
         if (currentHealth <= 0) {
-            Destroy(this.gameObject);
+            animator.SetBool("isDead", true);
+
             //TODO: Spawn smoke
+            audioSource.PlayOneShot(victorySound);
+            Destroy(this.gameObject, 2);
         }
     }
 

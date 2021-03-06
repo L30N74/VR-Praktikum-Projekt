@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class PlayerStats : MonoBehaviour
 {
-    public int currentHealth {private set; get;}
-    public int maxHealth {private set; get;}
+    public int currentHealth;
+    public int maxHealth;
 
     public Image playerHealthbar;
 
@@ -17,8 +17,7 @@ public class PlayerStats : MonoBehaviour
     private void Start() 
     {
         currentHealth = maxHealth;
-        playerHealthbar = GetComponentsInChildren<Image>()[1];
-        playerHealthbar.fillAmount = currentHealth;
+        //playerHealthbar.fillAmount = currentHealth;
     }       
     private void Update()
     {
@@ -40,6 +39,8 @@ public class PlayerStats : MonoBehaviour
             this.currentHealth += Mathf.Clamp(currentHealth + value, 0, maxHealth);
         else
             this.currentHealth += Mathf.Clamp(currentHealth - value, 0, maxHealth);
+
+        //playerHealthbar.fillAmount =(float)(currentHealth/maxHealth);
     }
 
     public void RestrictMovement(float time)
