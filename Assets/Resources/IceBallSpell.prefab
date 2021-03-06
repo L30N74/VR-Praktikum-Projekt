@@ -348,12 +348,20 @@ PrefabInstance:
       propertyPath: CollisionModule.enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 19800000, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 19800002, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
       propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 19800002, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
       propertyPath: CollisionModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800002, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
+      propertyPath: InitialModule.startSize.scalar
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 19800004, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
@@ -363,6 +371,10 @@ PrefabInstance:
     - target: {fileID: 19800004, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
       propertyPath: CollisionModule.enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 19800004, guid: 10a7ec2a2783770419a38059c45ea8b3, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 114000011684066590, guid: 10a7ec2a2783770419a38059c45ea8b3,
         type: 3}
