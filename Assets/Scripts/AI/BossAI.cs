@@ -52,6 +52,10 @@ public class BossAI : MonoBehaviour, IEnemyAI
     private Transform bindPrefab;
     public Vector3 bindOffset;
 
+    private Transform screechPrefab; 
+
+    private Transform bitePrefab;
+
 
 
     //** SHIELD AND HEALTH **\\
@@ -100,6 +104,8 @@ public class BossAI : MonoBehaviour, IEnemyAI
         essenceStockpileScript = GameObject.FindWithTag("EssenceDelivery").GetComponent<EssenceStockpile>();
 
         bindPrefab = ((GameObject)Resources.Load("Tendrils")).transform;
+        screechPrefab = ((GameObject)Resources.Load("Cry")).transform;
+        bitePrefab = ((GameObject)Resources.Load("Bite")).transform;
     }
 
     // Update is called once per frame
@@ -210,20 +216,28 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
     //** ATTACKS **\\
     private void ExecuteScreech()
-    {
+    {   
+        Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
+        Camera cam = Camera.main;
+        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         // Play audio source
 
         // Play special effect and animation
+        Instantiate(screechPrefab, spawnPosition, spawnRotation);
 
         // Deal damage
         playerStatsScript.AlterHealth(screechDamage, DamageType.Damage);
     }
 
     private void ExecuteBite()
-    {
+    {   
+        Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
+        Camera cam = Camera.main;
+        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         // Play audio source
 
         // Play animation
+        Instantiate(bitePrefab, spawnPosition, spawnRotation);
 
         // Deal damage
         playerStatsScript.AlterHealth(biteDamage, DamageType.Damage);

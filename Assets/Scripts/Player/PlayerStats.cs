@@ -1,16 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerStats : MonoBehaviour
 {
     public int currentHealth {private set; get;}
     public int maxHealth {private set; get;}
 
+    public Image playerHealthbar;
+
     public bool isRestricted = false;
     private float restrictionTimeout;
     private float timeSinceRestrictionStart;
 
+    private void Start() 
+    {
+        currentHealth = maxHealth;
+        playerHealthbar = GetComponentsInChildren<Image>()[1];
+        playerHealthbar.fillAmount = currentHealth;
+    }       
     private void Update()
     {
         if (isRestricted) {
