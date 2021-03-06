@@ -51,10 +51,9 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
     private Transform bindPrefab;
     public Vector3 bindOffset;
-
     private Transform screechPrefab; 
-
     private Transform bitePrefab;
+    private Transform laserPrefab;
 
 
 
@@ -106,6 +105,7 @@ public class BossAI : MonoBehaviour, IEnemyAI
         bindPrefab = ((GameObject)Resources.Load("Tendrils")).transform;
         screechPrefab = ((GameObject)Resources.Load("Cry")).transform;
         bitePrefab = ((GameObject)Resources.Load("Bite")).transform;
+        laserPrefab = ((GameObject)Resources.Load("Laser")).transform;
     }
 
     // Update is called once per frame
@@ -245,10 +245,13 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
     private void ExecuteLaser()
     {
+        Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
+        Camera cam = Camera.main;
+        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         // Play audio source
 
         // Play animation
-
+        Instantiate(laserPrefab, spawnPosition, spawnRotation);
         // Deal damage
         playerStatsScript.AlterHealth(laserDamage, DamageType.Damage);
     }
