@@ -5,24 +5,24 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/GestureRecognition/Sample_OneHanded.unity
-    guid: d1c3109bdb54ad54c8a2b2838528e640
-  - enabled: 0
-    path: Assets/GestureRecognition/GestureManager.unity
-    guid: 8d91ff346d965b042b02e8f26de1e499
-  - enabled: 0
-    path: Assets/GestureRecognition/Sample_TwoHanded.unity
-    guid: 47e3eed17990e2c4cba89062a7c0bb49
-  - enabled: 0
-    path: Assets/GestureRecognition/Sample_Military.unity
-    guid: df3ba80105f9da9449c5a1687b5b6b22
-  - enabled: 0
-    path: Assets/GestureRecognition/Sample_Pixie.unity
-    guid: af528a5b99845174fb9cf02fd8da115c
-  - enabled: 0
-    path: Assets/GestureRecognition/Sample_Phone.unity
-    guid: 0dcf345530576b944bc32f4fc7f8c0fe
+    path: Assets/Scenes/New.unity
+    guid: 2b3a2ead4f0c39d49bab00d7d1465f49
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 41aa045d44cdd6a4e839c7c876b9367b,
       type: 2}
