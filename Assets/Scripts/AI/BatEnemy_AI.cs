@@ -13,13 +13,15 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
     [Header("Audio")]
     public AudioClip deathSound;
     public AudioClip attackSound;
-    private AudioSource audioSource;
+    [SerializeField] private AudioSource audioSource;
 
     [SerializeField] private State state = State.Harvesting;
     private float roamingSpeed = 8f;
     private float chaseSpeed = 11f;
     private new Rigidbody rigidbody;
     private new Collider collider;
+
+    private MinionSpawner home;
 
     [SerializeField] private int currentHealth;
     [SerializeField] private int maxHealth = 100; 
@@ -67,7 +69,8 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
         attackTarget = null;
         agent.speed = roamingSpeed;
 
-        audioSource = GetComponent<AudioSource>();
+        if(!audioSource)
+            audioSource = GetComponent<AudioSource>();
 
         // Add all essenceCollectionSpots
         System.Array.ForEach<GameObject>(
@@ -186,6 +189,11 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
         }
     }
 
+    public void SetHome(MinionSpawner s)
+    {
+        home = s;
+    }
+
     void OnTriggerEnter(Collider other) 
     {
         if(other.gameObject.tag == "Player") {
@@ -233,6 +241,8 @@ public class BatEnemy_AI : MonoBehaviour, IEnemyAI
             audioSource.PlayOneShot(deathSound);
             Destroy(this.gameObject);
             //TODO: Spawn smoke
+
+            home.currentMinionCount--;
         }
     }
 }

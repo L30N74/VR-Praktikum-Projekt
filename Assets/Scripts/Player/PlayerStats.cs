@@ -17,7 +17,7 @@ public class PlayerStats : MonoBehaviour
     private void Start() 
     {
         currentHealth = maxHealth;
-        //playerHealthbar.fillAmount = currentHealth;
+        playerHealthbar.fillAmount = currentHealth;
     }       
     private void Update()
     {
@@ -40,7 +40,7 @@ public class PlayerStats : MonoBehaviour
         else
             this.currentHealth += Mathf.Clamp(currentHealth - value, 0, maxHealth);
 
-        //playerHealthbar.fillAmount =(float)(currentHealth/maxHealth);
+        playerHealthbar.fillAmount =(float)(currentHealth/maxHealth);
     }
 
     public void RestrictMovement(float time)

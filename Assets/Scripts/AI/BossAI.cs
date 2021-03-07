@@ -12,9 +12,9 @@ public class BossAI : MonoBehaviour, IEnemyAI
     [SerializeField] private int currentHealth;
     [SerializeField] private int maxHealth;
     [SerializeField] private float shieldAmount;
-    [SerializeField] private readonly float maxShieldAmount = 300f;
+    [SerializeField] private float maxShieldAmount = 100f;
 
-    private float shieldRefillCooldown = 5f;
+    private float shieldRefillCooldown = 15f;
     private float timeSinceLastRefill = 5f;
 
     private EssenceStockpile essenceStockpileScript;
@@ -65,13 +65,13 @@ public class BossAI : MonoBehaviour, IEnemyAI
     [SerializeField] private readonly float specialAttackCooldown = 20f;
     [SerializeField] private float timeSinceLastSpecialAttack;
 
-    private readonly float attackRange = 20f;
+    [SerializeField] private float attackRange = 20f;
 
     private readonly int screechDamage = 10;
     private readonly int biteDamage = 10;
     private readonly int laserDamage = 10;
 
-    private readonly float meleeRange = 5f;
+    [SerializeField] private float meleeRange = 5f;
 
     private readonly float bindDuration = 3f;
 
@@ -161,7 +161,7 @@ public class BossAI : MonoBehaviour, IEnemyAI
         timeSinceLastRefill += Time.deltaTime;
         if (shieldAmount < maxShieldAmount / 3f) {
             if (timeSinceLastRefill >= shieldRefillCooldown) {
-                shieldAmount += essenceStockpileScript.RetrieveEssence(150);
+                shieldAmount += essenceStockpileScript.RetrieveEssence(50);
                 enemyShieldBar.fillAmount = (float)(shieldAmount / maxShieldAmount);
                 timeSinceLastRefill = 0f;
             }
@@ -212,7 +212,8 @@ public class BossAI : MonoBehaviour, IEnemyAI
             if (timeSinceLastSpecialAttack < specialAttackCooldown)
                 return;
 
-            int attackVariantValue = Random.Range(1, 101);
+            ExecuteBind();
+            /*int attackVariantValue = Random.Range(1, 101);
             // Determine which special attack should be executed
             if (attackVariantValue <= 50) {
                 // Bite the player
@@ -221,7 +222,7 @@ public class BossAI : MonoBehaviour, IEnemyAI
             else {
                 // Screech at the player
                 ExecuteBind();
-            }
+            }*/
             timeSinceLastSpecialAttack = 0f;
         }
     }
@@ -229,16 +230,12 @@ public class BossAI : MonoBehaviour, IEnemyAI
     //** ATTACKS **\\
     private void ExecuteScreech()
     {
-        Debug.Log("Sreech attack");
-
-        Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
-        Camera cam = Camera.main;
-        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
+        Vector3 spawnPosition = body.position;
         // Play audio source
         audioSource.PlayOneShot(screechSound);
 
         // Play special effect and animation
-        Instantiate(screechPrefab, spawnPosition, spawnRotation);
+        Instantiate(screechPrefab, spawnPosition, Quaternion.identity);
 
         // Deal damage
         playerStatsScript.AlterHealth(screechDamage, DamageType.Damage);
@@ -254,7 +251,7 @@ public class BossAI : MonoBehaviour, IEnemyAI
         audioSource.PlayOneShot(biteSound);
 
         // Play animation
-        Destroy(Instantiate(bitePrefab, spawnPosition, spawnRotation), 1);
+        Destroy(Instantiate(bitePrefab, spawnPosition, spawnRotation).gameObject, 1);
 
         // Deal damage
         playerStatsScript.AlterHealth(biteDamage, DamageType.Damage);
@@ -262,7 +259,6 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
     private void ExecuteLaser()
     {
-        Debug.Log("Laser attack");
         Camera cam = Camera.main;
         Vector3 spawnPosition = eye.transform.position; 
 
@@ -271,9 +267,9 @@ public class BossAI : MonoBehaviour, IEnemyAI
 
         // Play animation
         Transform laserObject = Instantiate(laserPrefab, spawnPosition, Quaternion.identity);
-        Destroy(laserObject, 3f);
+        //troy(laserObject, 3f);
 
-        Vector3 forceVector = eye.position - new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
+        Vector3 forceVector = eye.position + cam.transform.position; // Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
         laserObject.GetComponent<Rigidbody>().AddForce(forceVector, ForceMode.Impulse);
 
         // Deal damage

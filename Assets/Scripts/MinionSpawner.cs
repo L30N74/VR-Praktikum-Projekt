@@ -41,6 +41,7 @@ public class MinionSpawner : MonoBehaviour
             Vector3 randomPosition = new Vector3(randomX, this.transform.position.y, randomZ);
             GameObject minion = Instantiate(minionPrefab, randomPosition, Quaternion.identity);
             minion.transform.SetParent(this.transform);
+            minion.SendMessage("SetHome", GetComponent<MinionSpawner>());
             currentMinionCount++;
             timeSinceLastSpawn = 0f;
         }

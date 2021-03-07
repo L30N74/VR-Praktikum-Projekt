@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spellName: Wie man das Buch benutzt
   element: Geschwindigkeit
-  description: "Die Finger zum Umbl\xE4ttern zu benutzen ist von gestern. Ich pr\xE4sentiere
-    einen Zauber, der das f\xFCr mich erledigt. Damit muss man sich 4% weniger bewegen,
+  description: "Die Finger zum Umbl\xE4ttern zu benutzen ist von gestern. Ich pr\xE4sentiere:
+    Einen Zauber, der das f\xFCr mich erledigt. Damit muss man sich 4% weniger bewegen,
     wenn man den Zauberstab in der Hand hat.\n\n\"Weniger Bewegung ist mehr Bewegung!\""
   imageHowTo: {fileID: 1823173878466905535, guid: edcedf2d446f96c439318ab05a6d7405,
     type: 3}

@@ -68,10 +68,10 @@ public class Spell : MonoBehaviour {
         switch(spellType) 
         {
             case SpellType.Fire:
-                Instantiate(spellParticles[0], collider.transform.position, Quaternion.identity);
+                Instantiate(spellParticles[1], collider.transform.position, Quaternion.identity);
                 break;
             case SpellType.Ice:
-                Instantiate(spellParticles[1], collider.transform.position, Quaternion.identity);
+                Instantiate(spellParticles[0], collider.transform.position, Quaternion.identity);
                 break;
         }
     }
