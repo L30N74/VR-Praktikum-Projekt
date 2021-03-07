@@ -17,6 +17,6 @@ MonoBehaviour:
   description: "Du magst die K\xE4lte nicht, aber deine Feinde m\xF6gen die K\xE4lte
     genauso wenig. Der Eisball macht nicht viel Schaden, jedoch werden deine Feinde
     f\xFCr eine kurze Zeit eingefroren.\n\n\u201EWettervorhersage f\xFCr dich: Eisige
-    Zeiten werden dich ereineln.\u201C"
+    Zeiten!\""
   imageHowTo: {fileID: 4497060185239590117, guid: a60a156f96f4581489b5bff7b9c8358c,
     type: 3}

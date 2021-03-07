@@ -249,7 +249,7 @@ public class BossAI : MonoBehaviour, IEnemyAI
         Debug.Log("Bite attack");
         Quaternion spawnRotation = new Quaternion(0, 0, 0, 1);
         Camera cam = Camera.main;
-        Vector3 spawnPosition = new Vector3(cam.transform.position.x, player.position.y, cam.transform.position.z);
+        Vector3 spawnPosition = new Vector3(cam.transform.position.x, body.position.y, cam.transform.position.z);
         // Play audio source
         audioSource.PlayOneShot(biteSound);
 

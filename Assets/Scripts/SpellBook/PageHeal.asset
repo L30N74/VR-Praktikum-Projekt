@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45aebeadf46ad2142aa68d635cc1c228, type: 3}
+  m_Name: PageHeal
+  m_EditorClassIdentifier: 
+  spellName: Heilen
+  element: Gesundheit
+  description: "Meine Lebenskraft zeihe ich aus der gr\xFCnen Magie der Kristallen.
+    Sind diese Kristalle in meiner n\xE4he, kann ich mich mit diesem Zauber heilen.\n\n\"Halte
+    gr\xFCne Kristalle in der N\xE4he und distanziere dich von roten.\""
+  imageHowTo: {fileID: 1823173878466905535, guid: ed529ef0d9f96b04283f5d8b84ca76c1,
+    type: 3}

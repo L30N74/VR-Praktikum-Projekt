@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spellName: Feuerball
   element: Feuer
-  description: "Mit diesem Zauber erzeugst du einen m\xE4chtigen Feuerball der einen
+  description: "Mit diesem Zauber erzeugst du einen m\xE4chtigen Feuerball, der einen
     Gegner trifft. Du hast diesen Zauberspruch von deinem Gro\xDFmeister und Opa
     erlernt. \n\n\u201EFeuer ist stark, aber auch unberechenbar, wenn man es nicht
     z\xE4hmen kann.\u201C"
-  imageHowTo: {fileID: 1823173878466905535, guid: edcedf2d446f96c439318ab05a6d7405,
+  imageHowTo: {fileID: 1823173878466905535, guid: 8d100b7655e272b41b97966f5a05aae2,
     type: 3}

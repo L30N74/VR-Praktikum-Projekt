@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45aebeadf46ad2142aa68d635cc1c228, type: 3}
+  m_Name: PageBook
+  m_EditorClassIdentifier: 
+  spellName: Wie man das Buch benutzt
+  element: Geschwindigkeit
+  description: "Die Finger zum Umbl\xE4ttern zu benutzen ist von gestern. Ich pr\xE4sentiere
+    einen Zauber, der das f\xFCr mich erledigt. Damit muss man sich 4% weniger bewegen,
+    wenn man den Zauberstab in der Hand hat.\n\n\"Weniger Bewegung ist mehr Bewegung!\""
+  imageHowTo: {fileID: 1823173878466905535, guid: edcedf2d446f96c439318ab05a6d7405,
+    type: 3}
